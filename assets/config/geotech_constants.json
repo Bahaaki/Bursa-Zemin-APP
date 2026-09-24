@@ -1,0 +1,13 @@
+{
+  "verified": false,
+  "note": "DRAFT. Human must verify every value against a textbook before setting verified=true.",
+  "default_gamma_kn_m3": 18.0,
+  "default_fs": 3.0,
+  "cu_factor_kpa_per_n": 6.0,
+  "n_gamma_terzaghi": [
+    {"phi": 0, "ng": 0.0}, {"phi": 5, "ng": 0.5}, {"phi": 10, "ng": 1.2},
+    {"phi": 15, "ng": 2.5}, {"phi": 20, "ng": 5.0}, {"phi": 25, "ng": 9.7},
+    {"phi": 30, "ng": 19.7}, {"phi": 35, "ng": 42.4}, {"phi": 40, "ng": 100.4},
+    {"phi": 45, "ng": 297.5}, {"phi": 50, "ng": 1153.2}
+  ]
+}

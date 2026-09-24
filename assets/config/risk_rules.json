@@ -1,0 +1,5 @@
+{
+  "verified": false,
+  "fault_distance_km": { "yuksek_max": 1.0, "orta_max": 5.0 },
+  "note": "DRAFT thresholds. Human must confirm."
+}

@@ -51,13 +51,28 @@ BUILD FAILED in 47s
 
 ### Attempt 3: AGP 8.3.0 + compileSdk = flutter.compileSdkVersion (34) — SUCCEEDED
 
-**AGP 8.3.0** (Feb 2024, released with Android Studio Iguana) rewrote the JdkImage transform to work correctly with JDK 17+/21 and compileSdk 34.
+**AGP 8.3.0** (Feb 2024, released with Android Studio Iguana).
 
-**Compatibility (from developer.android.com/build/releases/agp-8-3-0-release-notes):**
-- AGP 8.3.0 minimum Gradle: 8.2 (recommended: 8.4) → our Gradle 8.5 ✅
-- AGP 8.3.0 + Kotlin 1.9.10 ✅ (tested combination per release notes)
-- AGP 8.3.0 + JDK 21 ✅
-- AGP 8.3.0 + compileSdk 34 ✅
+**Compatibility note — source caveat:**
+The Gradle/Kotlin/JDK compatibility data below came from a web-search engine snippet,
+NOT from a directly-read primary source page. The official docs page
+(developer.android.com/build/releases/agp-8-3-0-release-notes) was fetched but
+returned a JavaScript-rendered HTML shell with no readable compatibility table.
+
+The claimed compatibility values from the snippet were:
+- AGP 8.3.0 minimum Gradle: 8.2 (recommended: 8.4); our Gradle 8.5 falls within range
+- AGP 8.3.0 + Kotlin 1.9.10: compatible per snippet
+- AGP 8.3.0 + JDK 21: compatible per snippet
+
+**The actual, primary evidence that the combination works is the build result:**
+```
+flutter build apk --debug
+Running Gradle task 'assembleDebug'...   290.9s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+exit code: 0   APK size: 82.4 MB
+```
+This is the only claim that does not depend on the search snippet.
+
 
 **Actual build output:**
 ```

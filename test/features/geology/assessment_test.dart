@@ -24,33 +24,23 @@ void main() {
       }
     });
 
-    test('ignores faultRiskLevel when it is null (unknown fault)', () {
-      expect(
-        calculateOverallRisk(
-          zeminRiski: RiskLevel.dusuk,
-          sismePotansiyeli: RiskLevel.orta,
-          faultLevel: null,
-        ),
-        equals(RiskLevel.orta),
-      );
+    test(
+        'ignores faultRiskLevel when it is null for all 9 (zemin, sisme) combinations',
+        () {
+      final levels = [RiskLevel.dusuk, RiskLevel.orta, RiskLevel.yuksek];
 
-      expect(
-        calculateOverallRisk(
-          zeminRiski: RiskLevel.dusuk,
-          sismePotansiyeli: RiskLevel.dusuk,
-          faultLevel: null,
-        ),
-        equals(RiskLevel.dusuk),
-      );
-
-      expect(
-        calculateOverallRisk(
-          zeminRiski: RiskLevel.yuksek,
-          sismePotansiyeli: RiskLevel.dusuk,
-          faultLevel: null,
-        ),
-        equals(RiskLevel.yuksek),
-      );
+      for (final z in levels) {
+        for (final s in levels) {
+          final expectedMax = z >= s ? z : s;
+          final overall = calculateOverallRisk(
+            zeminRiski: z,
+            sismePotansiyeli: s,
+            faultLevel: null,
+          );
+          expect(overall, equals(expectedMax),
+              reason: 'Failed for zemin=$z, sisme=$s, fault=null');
+        }
+      }
     });
   });
 

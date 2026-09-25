@@ -20,7 +20,7 @@ R6. EXTERNAL SERVICES: verify with a real request (curl or a Dart script), save 
 
 R7. NEVER weaken, skip or delete a test to make it pass. If a test is wrong per SPEC, explain why and fix it explicitly. If a test still fails after two genuinely different fix attempts, STOP and report.
 
-R8. ARCHITECTURE: domain code (parsing, geometry, rules, calculator) is pure Dart in `lib/features/*/domain/` and may import only `dart:*` and `latlong2`. UI is thin. State management is Riverpod only.
+R8. ARCHITECTURE: domain code (parsing, geometry, rules, calculator) is pure Dart in `lib/features/*/domain/` and may import only `dart:*`, `latlong2`, and `csv` (for classification parsing only). UI is thin. State management is Riverpod only.
 
 R9. LANGUAGE: UI strings Turkish. Code, comments, commit messages, docs English. README is English with a Turkish section.
 

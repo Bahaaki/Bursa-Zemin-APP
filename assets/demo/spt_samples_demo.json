@@ -1,0 +1,37 @@
+[
+  {
+    "id": "demo-spt-001",
+    "depth_m": 1.5,
+    "n_value": 8,
+    "soil": "kil",
+    "demo": true
+  },
+  {
+    "id": "demo-spt-002",
+    "depth_m": 3.0,
+    "n_value": 15,
+    "soil": "kum",
+    "demo": true
+  },
+  {
+    "id": "demo-spt-003",
+    "depth_m": 4.5,
+    "n_value": 22,
+    "soil": "kum",
+    "demo": true
+  },
+  {
+    "id": "demo-spt-004",
+    "depth_m": 6.0,
+    "n_value": 35,
+    "soil": "kum",
+    "demo": true
+  },
+  {
+    "id": "demo-spt-005",
+    "depth_m": 7.5,
+    "n_value": 12,
+    "soil": "kil",
+    "demo": true
+  }
+]

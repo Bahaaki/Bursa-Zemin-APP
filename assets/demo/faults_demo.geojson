@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "name": "faults_demo",
+  "features": [
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "ad": "DEMO Fay 1",
+        "demo": true
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [28.85, 40.05],
+          [29.05, 40.15],
+          [29.25, 40.12]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "ad": "DEMO Fay 2",
+        "demo": true
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [28.90, 39.95],
+            [29.10, 40.00]
+          ],
+          [
+            [29.10, 40.00],
+            [29.20, 40.05],
+            [29.30, 40.02]
+          ]
+        ]
+      }
+    }
+  ]
+}

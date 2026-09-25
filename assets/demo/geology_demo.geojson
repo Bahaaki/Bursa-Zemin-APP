@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "name": "geology_demo",
+  "features": [
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "birim": "DEMO-1",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [28.90, 40.10],
+          [29.00, 40.10],
+          [29.00, 40.20],
+          [28.90, 40.20],
+          [28.90, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "birim": "DEMO-2",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [29.00, 40.10],
+          [29.10, 40.10],
+          [29.10, 40.20],
+          [29.00, 40.20],
+          [29.00, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "birim": "DEMO-3",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [29.10, 40.10],
+          [29.20, 40.10],
+          [29.20, 40.20],
+          [29.10, 40.20],
+          [29.10, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "birim": "DEMO-4",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [28.90, 40.00],
+          [29.00, 40.00],
+          [29.00, 40.10],
+          [28.90, 40.10],
+          [28.90, 40.00]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "demo": true,
+      "properties": {
+        "birim": "DEMO-5",
+        "demo": true
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[
+            [29.00, 40.00],
+            [29.10, 40.00],
+            [29.10, 40.10],
+            [29.00, 40.10],
+            [29.00, 40.00]
+          ]],
+          [[
+            [29.10, 40.00],
+            [29.20, 40.00],
+            [29.20, 40.10],
+            [29.10, 40.10],
+            [29.10, 40.00]
+          ]]
+        ]
+      }
+    }
+  ]
+}

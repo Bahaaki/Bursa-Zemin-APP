@@ -16,6 +16,9 @@
 | 2026-09-25 | P0 | INTERNET permission in main AndroidManifest.xml | Flutter template only includes INTERNET in debug/profile manifests; release builds would have no OSM tiles. SPEC §7 requires this. |
 | 2026-09-25 | P0 | risk_rules.json fault thresholds remain `verified: false` | See fault-threshold source note below. Human must confirm before G2. |
 | 2026-09-25 | P0 | geotech_constants.json remains `verified: false` | Per SPEC §10: human must verify against textbook before G3. |
+| 2026-09-25 | P1 | Pure Dart CLI validator (`tool/validate_data.dart`) | Zero external dependencies (`dart:io`, `dart:convert` only); enforces geometry types, coordinate bounds (lat 39–41, lon 27.5–30.5), ring closure, non-empty birim, CSV matching, and file size limits. |
+| 2026-09-25 | P1 | Synthetic demo dataset (`assets/demo/`) | All features explicitly marked `demo: true`, units named `DEMO-1`..`DEMO-5` to prevent any confusion with real geological data (R1). |
+| 2026-09-25 | P1 | Negative test fixtures in `test/fixtures/` | Placed broken test data outside `assets/demo/` so it is not bundled into release APK assets. |
 
 ---
 

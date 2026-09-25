@@ -1,0 +1,6 @@
+birim,ad,zemin_turu,sisme_potansiyeli,zemin_riski
+DEMO-1,Demo Birim 1 (Kil),Kil,Yüksek,Yüksek
+DEMO-2,Demo Birim 2 (Kum),Kum,Orta,Orta
+DEMO-3,Demo Birim 3 (Kaya),Kaya,Düşük,Düşük
+DEMO-4,Demo Birim 4 (Alüvyon),Alüvyon,Yüksek,Orta
+DEMO-5,Demo Birim 5 (Diğer),Diğer,Orta,Yüksek

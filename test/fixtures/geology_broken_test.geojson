@@ -1,0 +1,73 @@
+{
+  "type": "FeatureCollection",
+  "name": "geology_broken",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "birim": "DEMO-1",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [28.90, 40.10],
+          [29.00, 40.10],
+          [29.00, 40.20],
+          [28.90, 40.20],
+          [28.90, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "birim": "",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [29.00, 40.10],
+          [29.10, 40.10],
+          [29.10, 40.20],
+          [29.00, 40.20],
+          [29.00, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "birim": "MISSING-UNIT",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [28.90, 40.10],
+          [29.00, 40.10],
+          [29.00, 40.20],
+          [28.90, 40.10]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "birim": "DEMO-3",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [35.00, 42.00],
+          [36.00, 42.00],
+          [36.00, 43.00],
+          [35.00, 43.00],
+          [35.00, 42.00]
+        ]]
+      }
+    }
+  ]
+}

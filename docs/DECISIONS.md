@@ -36,9 +36,11 @@
 
 ---
 
-## Build failure log — jlink issue (P0)
+## Known Android Build Environment Issues
 
-### Attempt 1: AGP 8.1.0 + compileSdk = flutter.compileSdkVersion (34)
+### 1. jlink Transform Crash with AGP 8.1.0 and JDK 21 (P0)
+
+#### Attempt 1: AGP 8.1.0 + compileSdk = flutter.compileSdkVersion (34)
 
 **Actual error:**
 ```
@@ -55,7 +57,7 @@ BUILD FAILED in 12m 8s
 ```
 **Root cause:** AGP 8.1.x has a known bug where the JdkImage transform fails with JDK 17+ when compileSdk=34. The `jlink.exe` call inside Gradle's transform cache crashes.
 
-### Attempt 2: AGP 8.1.0 + compileSdk = 33 (wrong fix)
+#### Attempt 2: AGP 8.1.0 + compileSdk = 33 (wrong fix)
 
 **Actual error:**
 ```
@@ -66,7 +68,7 @@ BUILD FAILED in 47s
 ```
 **Root cause:** Flutter 3.24's transitive androidx deps (core 1.13.1, lifecycle 2.7.0, etc.) require compileSdk ≥ 34. Lowering to 33 broke them. This also confirmed the SDK downgrade was not the right fix.
 
-### Attempt 3: AGP 8.3.0 + compileSdk = flutter.compileSdkVersion (34) — SUCCEEDED
+#### Attempt 3: AGP 8.3.0 + compileSdk = flutter.compileSdkVersion (34) — SUCCEEDED
 
 **AGP 8.3.0** (Feb 2024, released with Android Studio Iguana).
 
@@ -90,13 +92,55 @@ exit code: 0   APK size: 82.4 MB
 ```
 This is the only claim that does not depend on the search snippet.
 
+### 2. Plugin Subproject Evaluation Order & Missing `flutter` Extension Property (P3b)
 
-**Actual build output:**
+**Root cause:**
+In Gradle, subproject plugins (such as `:geolocator_android`) evaluate before `:app` applies `dev.flutter.flutter-gradle-plugin`, so the `flutter` extension property (`flutter.compileSdkVersion`, `flutter.minSdkVersion`) does not yet exist in their scope when their `build.gradle` scripts are evaluated.
+
+**Actual error:**
 ```
-Running Gradle task 'assembleDebug'...   290.9s
-√ Built build\app\outputs\flutter-apk\app-debug.apk  (82.4 MB)
-exit code 0
+Build file 'C:\Users\Ahmad\AppData\Local\Pub\Cache\hosted\pub.dev\geolocator_android-4.6.2\android\build.gradle' line: 29
+A problem occurred evaluating project ':geolocator_android'.
+> Could not get unknown property 'flutter' for extension 'android' of type com.android.build.gradle.LibraryExtension.
+...
+com.android.builder.errors.EvalIssueException: compileSdkVersion is not specified. Please add it to build.gradle
 ```
+
+**Fix:**
+In root `android/build.gradle`, explicitly enforce that plugin subprojects evaluate after `:app` and inherit `:app`'s configured `flutter` extension (or fallback values):
+```groovy
+subprojects { subproject ->
+    if (subproject.name != "app") {
+        subproject.evaluationDependsOn(":app")
+        def appFlutter = project(":app").extensions.findByName("flutter")
+        subproject.ext.flutter = appFlutter ?: [
+            compileSdkVersion: 34,
+            minSdkVersion: 21,
+            targetSdkVersion: 34
+        ]
+    }
+}
+```
+
+### 3. Android NDK Version Alignment (P3b)
+
+**Build notification:**
+During `flutter build apk --debug`, Flutter's Gradle build step detected an NDK version mismatch between the Flutter project default and `geolocator_android`:
+```
+Your project is configured with Android NDK 23.1.7779620, but the following plugin(s) depend on a different Android NDK version:
+- geolocator_android requires Android NDK 25.1.8937393
+Fix this issue by using the highest Android NDK version (they are backward compatible).
+Add the following to C:\Users\Ahmad\Desktop\TECRUBE\bursa-zemin\android\app\build.gradle:
+
+    android {
+        ndkVersion = "25.1.8937393"
+        ...
+    }
+```
+**Fix:**
+Set `ndkVersion = "25.1.8937393"` in `android/app/build.gradle` to ensure clean builds without NDK version warnings.
+
+
 
 ---
 

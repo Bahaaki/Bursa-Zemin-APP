@@ -11,6 +11,7 @@
 | 2026-09-25 | P0 | Kotlin 1.7.10 → 1.9.10 | AGP 8.1 requires Kotlin ≥ 1.8.20. Chose 1.9.10 as the latest 1.9.x stable at time of Flutter 3.24. |
 | 2026-09-25 | P0 | Java source/target 1.8 → 17 | AGP 8.x with JDK 21 requires Java target ≥ 11. Used 17 as the recommended baseline for AGP 8.x. |
 | 2026-09-25 | P0 | minSdk = 21 | Matches Flutter 3.24 default (`flutter.minSdkVersion`). Supports 98%+ of active Android devices. Pinned explicitly to prevent drift if Flutter default changes. |
+| 2026-09-25 | P0 | AGP 8.1.0 → 8.3.0 (second fix) | AGP 8.1 max recommended compileSdk=33; Flutter 3.24 pulls in androidx.core:1.13.1 which requires compileSdk≥34. Lowering to SDK 33 broke the dependency. Lowering was also not the right fix: the real root cause was AGP 8.1.x jlink failure with JDK 21 + SDK 34. AGP 8.3.0 (released Feb 2024) fixes the jlink/JDK-21 transform and officially supports compileSdk 34. compileSdk reverted to flutter.compileSdkVersion (34). |
 | 2026-09-25 | P0 | INTERNET permission in main AndroidManifest.xml | Flutter template only includes INTERNET in debug/profile manifests. Release builds would fail to load OSM tiles without it. SPEC §7 requires this. |
 | 2026-09-25 | P0 | risk_rules.json fault thresholds (1 km / 5 km) remain `verified: false` | See DECISIONS note below on source. Human must confirm before G2. |
 | 2026-09-25 | P0 | geotech_constants.json remains `verified: false` | All values are drafts per SPEC §10. Human must verify against textbook before G3. |

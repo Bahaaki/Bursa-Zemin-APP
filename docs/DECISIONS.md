@@ -24,6 +24,9 @@
 | 2026-09-25 | P2 | Pure Dart domain core (R8 amended) | `lib/features/geology/domain/` imports only `dart:*`, `latlong2`, and `csv` (classification only). Zero Flutter imports. |
 | 2026-09-25 | P2 | Equirectangular projection for fault distance | Projected at point's latitude: $x = \Delta\lambda \cos\phi_0 R$, $y = \Delta\phi R$ ($R=6371.0088$ km). Clamped segment projection $t \in [0, 1]$ finds perpendicular distance or nearest endpoint. |
 | 2026-09-25 | P2 | Ray-casting with inclusive boundary | Outer ring segments are inclusive (`_isPointOnSegment`). Points strictly inside holes are excluded; points directly on hole boundary are inclusive. MultiPolygon tested across distinct parts. |
+| 2026-09-25 | P3a | Dependency resolution (flutter_map 7.0.2, flutter_riverpod 2.6.1, geolocator 12.0.0, latlong2 0.9.1) | Resolved via `flutter pub get`. Pinned `latlong2: ^0.9.1` because `flutter_map 7.0.2` strictly requires `latlong2 ^0.9.1` under Dart 3.5.0 (`flutter_map 8.x` requires Dart >= 3.6.0). |
+| 2026-09-25 | P3a | flutter_map 7.0.2 API: No `GeoJsonLayer` | Confirmed `GeoJsonLayer` does not exist in flutter_map. Polygons use `PolygonLayer` with `Polygon(...)` (`points`, `holePointsList`, `color`, `borderColor`, `borderStrokeWidth`). Lines use `PolylineLayer` with `Polyline(...)`. Map tap uses `MapOptions(onTap: (TapPosition tapPosition, LatLng point) => ...)`. Tile layer uses `TileLayer(urlTemplate: ..., userAgentPackageName: ...)`. |
+| 2026-09-25 | P3a | geolocator 12.0.0 API confirmed | Confirmed exact signatures: `isLocationServiceEnabled()`, `checkPermission()`, `requestPermission()`, and `getCurrentPosition()`. |
 
 ---
 
@@ -102,3 +105,160 @@ The plan's note on `risk_rules.json` thresholds (1 km / 5 km) referenced "TBDY 2
 - The values are reasonable preliminary screening thresholds used in Turkish geotechnical practice but are **not traceable to a specific article, section, or URL** in TBDY 2018 or AFAD publications.
 
 **Status:** `verified: false`. Human must decide before G2 whether to keep these values, adjust them, or cite a specific local authority.
+
+---
+
+## P3a API Reference (flutter_map 7.0.2, geolocator 12.0.0, flutter_riverpod 2.6.1)
+
+Verified directly against resolved source code in the pub cache. P3b implementation must copy from here.
+
+### 1. `flutter_map: 7.0.2`
+
+**Imports:**
+```dart
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+```
+
+**Critical Findings:**
+- `GeoJsonLayer` does **NOT** exist in `flutter_map`. Parsed GeoJSON geometry must be drawn using `PolygonLayer` or `PolylineLayer`.
+- In `Polygon`, parameter `isFilled` is deprecated; setting `color: Color` automatically fills the polygon.
+
+**Exact Constructor Signatures:**
+
+1. `FlutterMap`:
+```dart
+FlutterMap({
+  Key? key,
+  required MapOptions options,
+  required List<Widget> children,
+  // ...
+})
+```
+
+2. `MapOptions`:
+```dart
+MapOptions({
+  LatLng initialCenter = const LatLng(50.5, 30.51),
+  double initialZoom = 12.0,
+  TapCallback? onTap, // typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
+  // ...
+})
+```
+
+3. `TileLayer`:
+```dart
+TileLayer({
+  Key? key,
+  String? urlTemplate, // e.g. 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+  String userAgentPackageName = 'unknown', // e.g. 'com.ahmed.bursazemin'
+  // ...
+})
+```
+
+4. `PolygonLayer`:
+```dart
+PolygonLayer({
+  Key? key,
+  required List<Polygon> polygons,
+  bool polygonCulling = true,
+  // ...
+})
+```
+
+5. `Polygon`:
+```dart
+Polygon({
+  required List<LatLng> points,
+  List<List<LatLng>>? holePointsList,
+  Color? color, // fill color with alpha ≈ 0.45 per SPEC §2
+  double borderStrokeWidth = 0.0, // e.g. 1.0
+  Color borderColor = const Color(0xFFFFFF00),
+  bool disableHolesBorder = false,
+  // ...
+})
+```
+
+6. `PolylineLayer`:
+```dart
+PolylineLayer({
+  Key? key,
+  required List<Polyline> polylines,
+  double? cullingMargin = 10,
+  // ...
+})
+```
+
+7. `Polyline`:
+```dart
+Polyline({
+  required List<LatLng> points,
+  double strokeWidth = 1.0, // e.g. 2.5
+  Color color = const Color(0xFF00FF00), // dark line per SPEC §3.2 (e.g. Colors.black87)
+  double borderStrokeWidth = 0.0,
+  Color borderColor = const Color(0xFFFFFF00),
+  // ...
+})
+```
+
+---
+
+### 2. `geolocator: 12.0.0`
+
+**Import:**
+```dart
+import 'package:geolocator/geolocator.dart';
+```
+
+**Exact Method Signatures & Types:**
+
+1. `Geolocator.isLocationServiceEnabled()`:
+```dart
+static Future<bool> isLocationServiceEnabled();
+```
+
+2. `Geolocator.checkPermission()`:
+```dart
+static Future<LocationPermission> checkPermission();
+```
+
+3. `Geolocator.requestPermission()`:
+```dart
+static Future<LocationPermission> requestPermission();
+```
+
+4. `Geolocator.getCurrentPosition(...)`:
+```dart
+static Future<Position> getCurrentPosition({
+  LocationAccuracy desiredAccuracy = LocationAccuracy.best,
+  bool forceAndroidLocationManager = false,
+  Duration? timeLimit,
+});
+```
+
+**`LocationPermission` Enum Values:**
+- `LocationPermission.denied`
+- `LocationPermission.deniedForever`
+- `LocationPermission.whileInUse`
+- `LocationPermission.always`
+- `LocationPermission.unableToDetermine`
+
+**`Position` Properties:**
+- `double latitude`
+- `double longitude`
+
+---
+
+### 3. `flutter_riverpod: 2.6.1`
+
+**Import:**
+```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+```
+
+**Core Constructs for P3b:**
+- `ProviderScope`: Root widget wrapping `MaterialApp`
+- `ConsumerWidget`: Base widget for consuming Riverpod providers
+- `WidgetRef ref`: Used in `build(BuildContext context, WidgetRef ref)`
+- `StateNotifierProvider` or `NotifierProvider`: Used to manage selected point, layer toggles, and assessment state.
+

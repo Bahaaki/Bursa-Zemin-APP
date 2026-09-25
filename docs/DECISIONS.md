@@ -19,6 +19,10 @@
 | 2026-09-25 | P1 | Pure Dart CLI validator (`tool/validate_data.dart`) | Zero external dependencies (`dart:io`, `dart:convert` only); enforces geometry types, coordinate bounds (lat 39–41, lon 27.5–30.5), ring closure, non-empty birim, CSV matching, and file size limits. |
 | 2026-09-25 | P1 | Synthetic demo dataset (`assets/demo/`) | All features explicitly marked `demo: true`, units named `DEMO-1`..`DEMO-5` to prevent any confusion with real geological data (R1). |
 | 2026-09-25 | P1 | Negative test fixtures in `test/fixtures/` | Placed broken test data outside `assets/demo/` so it is not bundled into release APK assets. |
+| 2026-09-25 | P2 | Added `latlong2: 0.10.1` & `csv: 6.0.0` | In SPEC §8 whitelist. Read resolved package sources before use (R2). Exact constructors: `LatLng(double latitude, double longitude)` from `latlong2/latlong.dart`, and `const CsvToListConverter(eol: '\n', shouldParseNumbers: false, allowInvalid: false)` from `csv` after normalizing `\r\n` to `\n`. |
+| 2026-09-25 | P2 | Pure Dart domain core (R8) | `lib/features/geology/domain/` imports only `dart:*` and `latlong2`. Zero Flutter imports. |
+| 2026-09-25 | P2 | Equirectangular projection for fault distance | Projected at point's latitude: $x = \Delta\lambda \cos\phi_0 R$, $y = \Delta\phi R$ ($R=6371.0088$ km). Clamped segment projection $t \in [0, 1]$ finds perpendicular distance or nearest endpoint. |
+| 2026-09-25 | P2 | Ray-casting with inclusive boundary | Outer ring segments are inclusive (`_isPointOnSegment`). Points strictly inside holes are excluded. MultiPolygon tested across distinct parts. |
 
 ---
 

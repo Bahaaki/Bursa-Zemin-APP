@@ -27,6 +27,12 @@
 | 2026-09-25 | P3a | Dependency resolution (flutter_map 7.0.2, flutter_riverpod 2.6.1, geolocator 12.0.0, latlong2 0.9.1) | Resolved via `flutter pub get`. Pinned `latlong2: ^0.9.1` because `flutter_map 7.0.2` strictly requires `latlong2 ^0.9.1` under Dart 3.5.0 (`flutter_map 8.x` requires Dart >= 3.6.0). |
 | 2026-09-25 | P3a | flutter_map 7.0.2 API: No `GeoJsonLayer` | Confirmed `GeoJsonLayer` does not exist in flutter_map. Polygons use `PolygonLayer` with `Polygon(...)` (`points`, `holePointsList`, `color`, `borderColor`, `borderStrokeWidth`). Lines use `PolylineLayer` with `Polyline(...)`. Map tap uses `MapOptions(onTap: (TapPosition tapPosition, LatLng point) => ...)`. Tile layer uses `TileLayer(urlTemplate: ..., userAgentPackageName: ...)`. |
 | 2026-09-25 | P3a | geolocator 12.0.0 API confirmed | Confirmed exact signatures: `isLocationServiceEnabled()`, `checkPermission()`, `requestPermission()`, and `getCurrentPosition()`. |
+| 2026-09-25 | P3b | Background isolate data parsing | Used `Isolate.run` to parse geology GeoJSON, faults GeoJSON, and classification CSV off the UI thread to prevent UI frame drops. |
+| 2026-09-25 | P3b | Polygon & Polyline caching | Polygons and Polylines are pre-computed during provider loading and cached, preventing per-frame widget list recreation during map panning/zooming. |
+| 2026-09-25 | P3b | Fallback asset loader | Implemented `loadAssetWithFallback` to seamlessly fall back from `assets/data/` to `assets/demo/` when real MTA data is not yet available, tagging loaded state with `isDemo: true`. |
+| 2026-09-25 | P3b | Subprojects Gradle configuration for Flutter plugins | `geolocator_android` evaluated without `flutter.compileSdkVersion` property in its scope (`Could not get unknown property 'flutter' for extension 'android'`). Resolved in `android/build.gradle` by evaluating after `:app` and exposing `:app`'s `flutter` extension or fallback values to `subproject.ext.flutter`. |
+| 2026-09-25 | P3b | ndkVersion = 25.1.8937393 | Set explicit `ndkVersion = "25.1.8937393"` in `android/app/build.gradle` to satisfy `geolocator_android` requirement and prevent build warning. |
+
 
 ---
 

@@ -9,8 +9,16 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
-subprojects {
-    project.evaluationDependsOn(":app")
+subprojects { subproject ->
+    if (subproject.name != "app") {
+        subproject.evaluationDependsOn(":app")
+        def appFlutter = project(":app").extensions.findByName("flutter")
+        subproject.ext.flutter = appFlutter ?: [
+            compileSdkVersion: 34,
+            minSdkVersion: 21,
+            targetSdkVersion: 34
+        ]
+    }
 }
 
 tasks.register("clean", Delete) {

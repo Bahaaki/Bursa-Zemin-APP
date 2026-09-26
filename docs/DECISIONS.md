@@ -32,6 +32,8 @@
 | 2026-09-25 | P3b | Fallback asset loader | Implemented `loadAssetWithFallback` to seamlessly fall back from `assets/data/` to `assets/demo/` when real MTA data is not yet available, tagging loaded state with `isDemo: true`. |
 | 2026-09-25 | P3b | Subprojects Gradle configuration for Flutter plugins | `geolocator_android` evaluated without `flutter.compileSdkVersion` property in its scope (`Could not get unknown property 'flutter' for extension 'android'`). Resolved in `android/build.gradle` by evaluating after `:app` and exposing `:app`'s `flutter` extension or fallback values to `subproject.ext.flutter`. |
 | 2026-09-25 | P3b | ndkVersion = 25.1.8937393 | Set explicit `ndkVersion = "25.1.8937393"` in `android/app/build.gradle` to satisfy `geolocator_android` requirement and prevent build warning. |
+| 2026-09-26 | G2 | Gate G2 closed: Fault distance thresholds adopted as developer estimate | Adopted yuksek_max: 1.0 km, orta_max: 5.0 km in assets/config/risk_rules.json as developer's (Ahmed) engineering judgment, NOT an official standard citation. Conscious choice by project owner. Set verified: true, source: "developer_estimate". |
+
 
 
 ---
@@ -144,7 +146,7 @@ Set `ndkVersion = "25.1.8937393"` in `android/app/build.gradle` to ensure clean 
 
 ---
 
-## Fault distance thresholds — source investigation
+## Fault distance thresholds — source investigation & Gate G2 closure
 
 The plan's note on `risk_rules.json` thresholds (1 km / 5 km) referenced "TBDY 2018 + AFAD guidelines."
 
@@ -154,7 +156,9 @@ The plan's note on `risk_rules.json` thresholds (1 km / 5 km) referenced "TBDY 2
 - **AFAD Diri Fay Haritası:** Classifies fault activity (Holocene/Pleistocene) but prescribes no distance-based risk tier of 1/5 km.
 - The values are reasonable preliminary screening thresholds used in Turkish geotechnical practice but are **not traceable to a specific article, section, or URL** in TBDY 2018 or AFAD publications.
 
-**Status:** `verified: false`. Human must decide before G2 whether to keep these values, adjust them, or cite a specific local authority.
+**Gate G2 Resolution (2026-09-26):**
+The developer (Ahmed) has consciously decided to adopt the thresholds (`yuksek_max: 1.0 km`, `orta_max: 5.0 km`) in `assets/config/risk_rules.json` as his own engineering judgment, not as an official standard citation. Gate G2 is closed with `"verified": true`, `"source": "developer_estimate"`, and an explanatory note in `assets/config/risk_rules.json`. The overarching disclaimer `kDisclaimer` ("Ön değerlendirmedir, zemin etüdünün yerine geçmez.") adequately covers the preliminary nature of these screening thresholds without requiring separate disclaimer text.
+
 
 ---
 

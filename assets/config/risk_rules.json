@@ -1,5 +1,7 @@
 {
-  "verified": false,
+  "verified": true,
+  "source": "developer_estimate",
   "fault_distance_km": { "yuksek_max": 1.0, "orta_max": 5.0 },
-  "note": "DRAFT thresholds. Human must confirm."
+  "note": "Developer's engineering judgment thresholds; not derived from an official standard."
 }
+

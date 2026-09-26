@@ -38,6 +38,7 @@
 | 2026-09-26 | P5 | Pure Dart SPT Calculator & UI Integration | Pure Dart Terzaghi general shear bearing capacity calculator (zero Flutter imports per R8), linear interpolation for Nγ, Wolff/Stroud empirical correlations, strip/square/circular shape factors, and safety warnings. CalculatorScreen with live recalculation, intermediate parameters, sample preset loader, coordinate prefill, and navigation from MapScreen & GroundAssessmentSheet. 15 domain tests (matching 3 verified reference cases) + 6 widget tests. |
 | 2026-09-26 | P6 | AFAD Earthquake Layer & Client Integration | Verified endpoint `https://deprem.afad.gov.tr/apiv2/event/filter` (redirecting to `servisnet.afad.gov.tr/...`). Added `http: 1.6.0` from whitelist. Real request for Bursa bounding box (last 30 days, minmag 2.0) yielded 62 records saved to `test/fixtures/afad_sample.json`. Implemented pure Dart `Quake` model (R8), `AfadClient` with 10s timeout, 10 min cache, typed errors (`AfadTimeoutException`, `AfadNetworkException`, `AfadParseException`, `AfadHttpException`). Map layer renders markers sized by magnitude; tap shows `QuakeDetailCard` (time, magnitude, depth, location, explicit non-prediction note); error state displays `Deprem verisi alınamadı` banner without breaking map. 15 new tests (6 domain, 6 client, 3 widget). |
 | 2026-09-27 | P7 | Single-page PDF report with Noto Sans & printing | Added `pdf: 3.11.3` and `printing: 5.14.3` from SPEC §8 whitelist. Loaded Google Fonts `NotoSans` (Regular, Bold, Italic) TTF from `assets/fonts/` for mandatory Turkish Unicode glyph support. Implemented single A4 page report per SPEC §6 with RepaintBoundary map snapshot export (fallback handling if capture fails), ground assessment summary, SPT calculator results (if present), prominent disclaimer banner, and metadata attribution. Share/save wired via `Printing.sharePdf`. 4 new report tests (pure text golden builder, page count constraint, and fallback handling). |
+| 2026-09-27 | P7 | Live device report layout & map verification | Human visually verified live-device report layout and map rendering on 2026-09-27. |
 
 
 
@@ -492,6 +493,8 @@ import 'package:printing/printing.dart';
 ### 5. Map Snapshot Visual State & Layer Inclusion
 - **Design Decision:** The PDF report's map snapshot intentionally reflects the map's visual state at the moment "Rapor Oluştur" is tapped — including the earthquake (Deprem) layer if it was toggled on by the user.
 - **Rationale:** This is a deliberate product decision by the developer (Ahmed), not a bug. If the user toggles on the earthquake layer to inspect nearby quakes in relation to their site, capturing those quake markers into the generated report provides relevant contextual information. Do not "fix" or alter this behavior in any future phase.
+- **Closure Verification:** Human visually verified live-device report layout and map rendering on 2026-09-27.
+
 
 
 

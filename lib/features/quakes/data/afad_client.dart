@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../../../core/constants.dart';
 import '../domain/quake.dart';
 
 /// Base typed exception for AFAD client errors.
@@ -102,16 +103,32 @@ class AfadClient {
     return '$y-$m-$d $hh:$mm:$ss';
   }
 
+  /// Builds the AFAD query URI for the given parameters (SPEC §5).
+  static Uri buildUri({
+    String endpoint = defaultEndpoint,
+    required DateTime start,
+    required DateTime end,
+    GeoBoundingBox boundingBox = kBursaBoundingBox,
+    double minMag = 2.0,
+  }) {
+    return Uri.parse(endpoint).replace(queryParameters: {
+      'start': formatAfadDate(start),
+      'end': formatAfadDate(end),
+      'minlat': boundingBox.minLat.toString(),
+      'maxlat': boundingBox.maxLat.toString(),
+      'minlon': boundingBox.minLon.toString(),
+      'maxlon': boundingBox.maxLon.toString(),
+      'minmag': minMag.toString(),
+    });
+  }
+
   /// Fetches earthquakes within Bursa bounding box for the last 30 days.
   ///
   /// Uses in-memory cache (10 min) unless [forceRefresh] is true.
   Future<List<Quake>> fetchEarthquakes({
     DateTime? start,
     DateTime? end,
-    double minLat = 39.0,
-    double maxLat = 41.0,
-    double minLon = 27.5,
-    double maxLon = 30.5,
+    GeoBoundingBox boundingBox = kBursaBoundingBox,
     double minMag = 2.0,
     bool forceRefresh = false,
   }) async {
@@ -127,15 +144,13 @@ class AfadClient {
     final now = end ?? DateTime.now();
     final startDate = start ?? now.subtract(const Duration(days: 30));
 
-    final uri = Uri.parse(endpoint).replace(queryParameters: {
-      'start': formatAfadDate(startDate),
-      'end': formatAfadDate(now),
-      'minlat': minLat.toString(),
-      'maxlat': maxLat.toString(),
-      'minlon': minLon.toString(),
-      'maxlon': maxLon.toString(),
-      'minmag': minMag.toString(),
-    });
+    final uri = buildUri(
+      endpoint: endpoint,
+      start: startDate,
+      end: now,
+      boundingBox: boundingBox,
+      minMag: minMag,
+    );
 
     try {
       final response = await _httpClient.get(

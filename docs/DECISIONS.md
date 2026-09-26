@@ -436,3 +436,13 @@ To ensure genuine independent verification (avoiding shared code bugs between te
 - **Deviation (Calculation Method for Cases 2 & 3):** Case 2 and Case 3 arithmetic was run as a single end-to-end PowerShell script rather than separate manual step-by-step arithmetic, as originally instructed.
 - **Deviation (Source Verification Status for Case 2):** Case 2 was previously described as citing a published StructX / textbook worked example ($q_{\text{ult}} = 1341.9\text{ kPa}, q_{\text{all}} = 447.3\text{ kPa}$). In reality, no single search result or published textbook page was verified to contain this exact numerical example; the values were generated in the search tool's LLM synthesis. Case 2's source is therefore explicitly recorded as `"computed_only, no verified external citation"`.
 
+---
+
+## Phase P6 Known Gaps & Observations
+
+### AFAD API 302 Redirect End-to-End Test Coverage Gap
+- **Behavior observed:** Queries to `https://deprem.afad.gov.tr/apiv2/event/filter` return an HTTP 302 Found redirect to `https://servisnet.afad.gov.tr/apiv2/event/filter`. This was verified during live endpoint exploration via `curl -L`.
+- **Status in app:** At runtime on devices, `AfadClient` relies on `package:http` (and the platform `HttpClient`) automatically following HTTP 302 redirects by default (`followRedirects = true`).
+- **Test coverage gap:** The automated unit test suite exercises `AfadClient` using `http.testing.MockClient` returning direct 200 OK responses; it does not simulate a 302 redirect response chain. As such, automatic 302 redirect following is not explicitly exercised in unit tests and relies on standard library transport behavior.
+
+

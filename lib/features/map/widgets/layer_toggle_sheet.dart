@@ -51,11 +51,11 @@ class LayerToggleSheet extends ConsumerWidget {
               onChanged: (val) => notifier.toggleFaults(val),
             ),
             SwitchListTile(
-              secondary: const Icon(Icons.sensors, color: Colors.grey),
+              secondary: const Icon(Icons.sensors, color: Colors.deepOrange),
               title: const Text('Son Depremler'),
-              subtitle: const Text('AFAD son 24 saat depremleri (Pek yakında)'),
+              subtitle: const Text('AFAD son 30 gün depremleri (M ≥ 2.0)'),
               value: mapState.showQuakes,
-              onChanged: null, // Disabled placeholder for P6 per SPEC §3.2
+              onChanged: (val) => notifier.toggleQuakes(val),
             ),
           ],
         ),

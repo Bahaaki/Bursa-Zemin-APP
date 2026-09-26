@@ -8,6 +8,9 @@ import '../../core/constants.dart';
 import '../calculator/calculator_screen.dart';
 import '../geology/domain/assessment.dart';
 import '../geology/domain/risk_rules.dart';
+import '../quakes/domain/quake.dart';
+import '../quakes/providers/quake_providers.dart';
+import '../quakes/widgets/quake_detail_card.dart';
 import 'providers/map_providers.dart';
 import 'widgets/ground_assessment_sheet.dart';
 import 'widgets/layer_toggle_sheet.dart';
@@ -126,6 +129,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final mapState = ref.watch(mapStateProvider);
     final geologyAsync = ref.watch(geologyDataProvider);
     final faultsAsync = ref.watch(faultsDataProvider);
+    final quakesAsync = mapState.showQuakes ? ref.watch(quakesProvider) : null;
 
     final isDemo = (geologyAsync.valueOrNull?.isDemo ?? false) ||
         (faultsAsync.valueOrNull?.isDemo ?? false);
@@ -247,6 +251,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ),
                       ),
                     ),
+                  if (mapState.showQuakes && quakesAsync?.valueOrNull != null)
+                    for (final quake in quakesAsync!.valueOrNull!)
+                      _buildQuakeMarker(context, quake),
                 ],
               ),
             ],
@@ -296,26 +303,80 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
 
-          // Loading overlay if initial datasets are loading
-          if (geologyAsync.isLoading || faultsAsync.isLoading)
+          // Quakes Error Banner (SPEC §5)
+          if (mapState.showQuakes && quakesAsync?.hasError == true)
             Positioned(
-              top: isDemo ? 36 : 8,
+              top: isDemo ? 36 : 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                color: Colors.red.shade800,
+                elevation: 3,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline,
+                          color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Deprem verisi alınamadı',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => ref.invalidate(quakesProvider),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 24),
+                        ),
+                        child: const Text('Tekrar Dene',
+                            style: TextStyle(fontSize: 11)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Loading overlay if initial datasets or quakes are loading
+          if (geologyAsync.isLoading ||
+              faultsAsync.isLoading ||
+              (mapState.showQuakes && (quakesAsync?.isLoading ?? false)))
+            Positioned(
+              top: (isDemo ||
+                      (mapState.showQuakes && quakesAsync?.hasError == true))
+                  ? 40
+                  : 8,
               right: 8,
               child: Card(
                 color: Colors.white.withOpacity(0.9),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 14,
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-                      SizedBox(width: 8),
-                      Text('Veriler yükleniyor...',
-                          style: TextStyle(fontSize: 12)),
+                      const SizedBox(width: 8),
+                      Text(
+                        (mapState.showQuakes &&
+                                (quakesAsync?.isLoading ?? false))
+                            ? 'Depremler yükleniyor...'
+                            : 'Veriler yükleniyor...',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
@@ -327,6 +388,49 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         onPressed: _handleLocationButton,
         tooltip: 'Konumumu Göster',
         child: const Icon(Icons.my_location),
+      ),
+    );
+  }
+
+  Marker _buildQuakeMarker(BuildContext context, Quake quake) {
+    final size = (quake.magnitude * 8.0).clamp(20.0, 48.0);
+    final color = quake.magnitude >= 4.5
+        ? Colors.red.shade700
+        : quake.magnitude >= 3.0
+            ? Colors.deepOrange
+            : Colors.orange.shade700;
+
+    return Marker(
+      point: quake.coordinates,
+      width: size,
+      height: size,
+      child: GestureDetector(
+        onTap: () {
+          QuakeDetailCard.show(context, quake);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.85),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 1.5),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 3,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            quake.magnitude.toStringAsFixed(1),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: (size * 0.42).clamp(8.0, 14.0),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }

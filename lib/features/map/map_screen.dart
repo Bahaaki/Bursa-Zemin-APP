@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -107,9 +108,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<Uint8List?> _captureMapSnapshot() async {
     try {
+      final binding = WidgetsBinding.instance;
+
+      // 1. Wait for post-frame callback so the tap marker and state changes are painted
+      final completer = Completer<void>();
+      binding.addPostFrameCallback((_) {
+        completer.complete();
+      });
+      await completer.future;
+
+      // 2. Brief settle delay to allow vector graphics / tile layout to settle
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+
       final boundary =
           _mapKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) return null;
+
+      // 3. If boundary still needs paint, wait for the frame end
+      if (boundary.debugNeedsPaint) {
+        await binding.endOfFrame;
+      }
+
       final image = await boundary.toImage(pixelRatio: 2.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       return byteData?.buffer.asUint8List();

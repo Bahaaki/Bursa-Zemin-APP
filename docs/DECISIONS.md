@@ -484,6 +484,12 @@ import 'package:printing/printing.dart';
 ### 3. Font Licensing Notice (for P9's README)
 - Note for P9: Noto Sans is used under the SIL Open Font License (OFL) and must be credited in the app / README.
 
+### 4. Map Snapshot RepaintBoundary Timing Fix
+- **Problem observed:** The initial sample PDF showed a solid teal block because `sample_map.png` was initially generated as a 50x50 placeholder block during test setup, and in the running app, `_captureMapSnapshot()` was called synchronously on tap before the tap marker state change was laid out and painted, or when `debugNeedsPaint` was true.
+- **Root cause:** `ref.read(mapStateProvider.notifier).selectPoint(point)` schedules a frame. Calling `boundary.toImage()` immediately captures before the marker frame completes and can fail with `debugNeedsPaint`.
+- **Fix:** In `_captureMapSnapshot()`, wait for `addPostFrameCallback` so that the marker and vector layers complete layout and paint, followed by a 150ms settle delay and an `endOfFrame` check before invoking `boundary.toImage(pixelRatio: 2.0)`. Updated `test/fixtures/sample_map.png` with the real captured 800x488 map snapshot containing geology polygons, fault lines, and the red marker pin.
+
+
 
 
 

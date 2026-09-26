@@ -343,7 +343,7 @@ pw.Document buildPdfDocument({
           children: [
             // 1. Header (Title, Date, Coordinates)
             _buildHeader(reportData),
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 12),
 
             // 2. Map snapshot or fallback
             _buildMapSnapshot(
@@ -351,11 +351,11 @@ pw.Document buildPdfDocument({
               hasBearing: reportData.bearing != null,
               italicFont: italicFont,
             ),
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 12),
 
             // 3. Ground Assessment Card
             _buildAssessmentSection(reportData),
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 12),
 
             // 4. SPT Bearing Capacity Section (if present or omitted notice)
             _buildBearingSection(
@@ -411,7 +411,7 @@ Future<bool> sharePdfReport({
 
 pw.Widget _buildHeader(ReportTextData report) {
   return pw.Container(
-    padding: const pw.EdgeInsets.only(bottom: 8),
+    padding: const pw.EdgeInsets.only(bottom: 10),
     decoration: const pw.BoxDecoration(
       border: pw.Border(
         bottom: pw.BorderSide(
@@ -430,16 +430,16 @@ pw.Widget _buildHeader(ReportTextData report) {
             pw.Text(
               kAppName,
               style: pw.TextStyle(
-                fontSize: 18,
+                fontSize: 21,
                 fontWeight: pw.FontWeight.bold,
                 color: const PdfColor.fromInt(0xFF00796B),
               ),
             ),
-            pw.SizedBox(height: 2),
+            pw.SizedBox(height: 3),
             pw.Text(
               'Ön Zemin Değerlendirme ve Taşıma Gücü Raporu',
               style: const pw.TextStyle(
-                fontSize: 8.5,
+                fontSize: 9.5,
                 color: PdfColors.grey700,
               ),
             ),
@@ -451,15 +451,15 @@ pw.Widget _buildHeader(ReportTextData report) {
             pw.Text(
               'Tarih: ${report.dateString}',
               style: const pw.TextStyle(
-                fontSize: 8,
+                fontSize: 9,
                 color: PdfColors.grey800,
               ),
             ),
-            pw.SizedBox(height: 2),
+            pw.SizedBox(height: 3),
             pw.Text(
               'Koordinat: ${report.coordinatesString}',
               style: const pw.TextStyle(
-                fontSize: 8,
+                fontSize: 9,
                 color: PdfColors.grey800,
               ),
             ),
@@ -490,7 +490,7 @@ pw.Widget _buildMapSnapshot(
     try {
       final img = pw.MemoryImage(mapBytes);
       return pw.Container(
-        height: hasBearing ? 120 : 160,
+        height: hasBearing ? 295 : 380,
         width: double.infinity,
         decoration: pw.BoxDecoration(
           borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -511,7 +511,7 @@ pw.Widget _buildMapSnapshot(
   }
 
   return pw.Container(
-    height: 36,
+    height: 45,
     width: double.infinity,
     alignment: pw.Alignment.center,
     decoration: pw.BoxDecoration(
@@ -523,7 +523,7 @@ pw.Widget _buildMapSnapshot(
       'Harita görüntüsü alınamadı',
       style: pw.TextStyle(
         font: italicFont,
-        fontSize: 8,
+        fontSize: 9,
         color: PdfColors.grey600,
       ),
     ),
@@ -546,7 +546,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
   }
 
   return pw.Container(
-    padding: const pw.EdgeInsets.all(10),
+    padding: const pw.EdgeInsets.all(14),
     decoration: pw.BoxDecoration(
       borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
       border: pw.Border.all(color: PdfColors.grey300, width: 0.8),
@@ -561,7 +561,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
             pw.Text(
               'ZEMİN ÖN DEĞERLENDİRMESİ',
               style: pw.TextStyle(
-                fontSize: 10,
+                fontSize: 11.5,
                 fontWeight: pw.FontWeight.bold,
                 color: const PdfColor.fromInt(0xFF004D40),
               ),
@@ -571,7 +571,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
                 if (report.isDemo) ...[
                   pw.Container(
                     padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 5, vertical: 2),
+                        horizontal: 7, vertical: 3),
                     decoration: const pw.BoxDecoration(
                       color: PdfColor.fromInt(0xFFFFF3E0),
                       borderRadius: pw.BorderRadius.all(pw.Radius.circular(3)),
@@ -579,7 +579,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
                     child: pw.Text(
                       'DEMO VERİ',
                       style: pw.TextStyle(
-                        fontSize: 7,
+                        fontSize: 8,
                         fontWeight: pw.FontWeight.bold,
                         color: const PdfColor.fromInt(0xFFE65100),
                       ),
@@ -589,7 +589,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
                 ],
                 pw.Container(
                   padding:
-                      const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: pw.BoxDecoration(
                     color: badgeBg,
                     borderRadius:
@@ -598,7 +598,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
                   child: pw.Text(
                     'Genel Risk: ${report.overallRiskLevel}',
                     style: pw.TextStyle(
-                      fontSize: 7.5,
+                      fontSize: 8.5,
                       fontWeight: pw.FontWeight.bold,
                       color: badgeColor,
                     ),
@@ -608,9 +608,9 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
             ),
           ],
         ),
-        pw.SizedBox(height: 6),
+        pw.SizedBox(height: 7),
         pw.Divider(color: PdfColors.grey200, thickness: 0.5),
-        pw.SizedBox(height: 4),
+        pw.SizedBox(height: 7),
 
         // 2-column key-value metrics
         pw.Row(
@@ -624,7 +624,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
             ),
           ],
         ),
-        pw.SizedBox(height: 4),
+        pw.SizedBox(height: 7),
         pw.Row(
           children: [
             pw.Expanded(
@@ -636,7 +636,7 @@ pw.Widget _buildAssessmentSection(ReportTextData report) {
             ),
           ],
         ),
-        pw.SizedBox(height: 4),
+        pw.SizedBox(height: 7),
         pw.Row(
           children: [
             pw.Expanded(
@@ -661,7 +661,7 @@ pw.Widget _buildBearingSection(
 }) {
   if (bearing == null) {
     return pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: pw.BoxDecoration(
         color: PdfColors.grey50,
         borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -671,7 +671,7 @@ pw.Widget _buildBearingSection(
         'SPT Taşıma Gücü Hesabı: Bu değerlendirme için SPT hesaplaması yapılmamıştır.',
         style: pw.TextStyle(
           font: italicFont,
-          fontSize: 7.5,
+          fontSize: 8,
           color: PdfColors.grey600,
         ),
       ),
@@ -679,7 +679,7 @@ pw.Widget _buildBearingSection(
   }
 
   return pw.Container(
-    padding: const pw.EdgeInsets.all(10),
+    padding: const pw.EdgeInsets.all(14),
     decoration: pw.BoxDecoration(
       borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
       border: pw.Border.all(color: PdfColors.grey300, width: 0.8),
@@ -690,14 +690,14 @@ pw.Widget _buildBearingSection(
         pw.Text(
           'SPT TAŞIMA GÜCÜ HESABI (TERZAGHI GENEL KAYMA)',
           style: pw.TextStyle(
-            fontSize: 9.5,
+            fontSize: 11,
             fontWeight: pw.FontWeight.bold,
             color: const PdfColor.fromInt(0xFF004D40),
           ),
         ),
-        pw.SizedBox(height: 5),
+        pw.SizedBox(height: 7),
         pw.Divider(color: PdfColors.grey200, thickness: 0.5),
-        pw.SizedBox(height: 4),
+        pw.SizedBox(height: 7),
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
@@ -709,13 +709,13 @@ pw.Widget _buildBearingSection(
                 children: [
                   _buildKeyValue('Zemin / SPT',
                       '${bearing.soilKind} (N: ${bearing.nValue}, N_düz: ${bearing.effectiveN.toStringAsFixed(1)})'),
-                  pw.SizedBox(height: 3),
+                  pw.SizedBox(height: 5),
                   _buildKeyValue('Temel Geometrisi',
                       '${bearing.footingShape} (B: ${bearing.b.toStringAsFixed(2)} m, Df: ${bearing.df.toStringAsFixed(2)} m)'),
-                  pw.SizedBox(height: 3),
+                  pw.SizedBox(height: 5),
                   _buildKeyValue('Parametreler',
                       'γ: ${bearing.gamma.toStringAsFixed(1)} kN/m³, FS: ${bearing.fs.toStringAsFixed(1)}'),
-                  pw.SizedBox(height: 3),
+                  pw.SizedBox(height: 5),
                   if (bearing.phiDeg != null)
                     _buildKeyValue('İçsel Sürtünme Açısı (φ)',
                         '${bearing.phiDeg!.toStringAsFixed(2)}°')
@@ -735,15 +735,15 @@ pw.Widget _buildBearingSection(
                 children: [
                   _buildKeyValue('Taşıma Katsayıları',
                       'Nc: ${bearing.nc.toStringAsFixed(2)}, Nq: ${bearing.nq.toStringAsFixed(2)}, Nγ: ${bearing.ng.toStringAsFixed(2)}'),
-                  pw.SizedBox(height: 3),
+                  pw.SizedBox(height: 5),
                   _buildKeyValue('Sürşarj Basıncı (q)',
                       '${bearing.q.toStringAsFixed(1)} kPa'),
-                  pw.SizedBox(height: 5),
+                  pw.SizedBox(height: 7),
 
                   // Results Highlight Box
                   pw.Container(
                     padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 5),
+                        horizontal: 12, vertical: 9),
                     decoration: const pw.BoxDecoration(
                       color: PdfColor.fromInt(0xFFE8F5E9),
                       borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -756,11 +756,11 @@ pw.Widget _buildBearingSection(
                           children: [
                             pw.Text('Nihai Taşıma Gücü (q_ult)',
                                 style: const pw.TextStyle(
-                                    fontSize: 7, color: PdfColors.grey800)),
+                                    fontSize: 8.5, color: PdfColors.grey800)),
                             pw.Text(
                               '${bearing.qUlt.toStringAsFixed(1)} kPa',
                               style: pw.TextStyle(
-                                fontSize: 9.5,
+                                fontSize: 11.5,
                                 fontWeight: pw.FontWeight.bold,
                                 color: const PdfColor.fromInt(0xFF1B5E20),
                               ),
@@ -772,11 +772,11 @@ pw.Widget _buildBearingSection(
                           children: [
                             pw.Text('Emniyetli Taşıma Gücü (q_all)',
                                 style: const pw.TextStyle(
-                                    fontSize: 7, color: PdfColors.grey800)),
+                                    fontSize: 8.5, color: PdfColors.grey800)),
                             pw.Text(
                               '${bearing.qAll.toStringAsFixed(1)} kPa',
                               style: pw.TextStyle(
-                                fontSize: 10.5,
+                                fontSize: 12.5,
                                 fontWeight: pw.FontWeight.bold,
                                 color: const PdfColor.fromInt(0xFF2E7D32),
                               ),
@@ -792,15 +792,15 @@ pw.Widget _buildBearingSection(
           ],
         ),
         if (bearing.warnings.isNotEmpty) ...[
-          pw.SizedBox(height: 4),
+          pw.SizedBox(height: 6),
           pw.Divider(color: PdfColors.grey200, thickness: 0.5),
-          pw.SizedBox(height: 2),
+          pw.SizedBox(height: 3),
           for (final w in bearing.warnings)
             pw.Text(
               '• $w',
               style: pw.TextStyle(
                 font: italicFont,
-                fontSize: 6.5,
+                fontSize: 8,
                 color: PdfColors.amber900,
               ),
             ),
@@ -817,7 +817,7 @@ pw.Widget _buildKeyValue(String key, String value, {bool isHighlight = false}) {
       pw.Text(
         '$key: ',
         style: const pw.TextStyle(
-          fontSize: 8,
+          fontSize: 9,
           color: PdfColors.grey700,
         ),
       ),
@@ -825,7 +825,7 @@ pw.Widget _buildKeyValue(String key, String value, {bool isHighlight = false}) {
         child: pw.Text(
           value,
           style: pw.TextStyle(
-            fontSize: 8,
+            fontSize: 9,
             fontWeight: isHighlight ? pw.FontWeight.bold : pw.FontWeight.normal,
             color: isHighlight
                 ? const PdfColor.fromInt(0xFF00796B)
@@ -843,7 +843,7 @@ pw.Widget _buildFooter(ReportTextData report) {
     children: [
       // Disclaimer Banner (R10)
       pw.Container(
-        padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: pw.BoxDecoration(
           color: const PdfColor.fromInt(0xFFFFF8E1), // Amber 50
           borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -858,23 +858,23 @@ pw.Widget _buildFooter(ReportTextData report) {
             pw.Text(
               'YASAL UYARI: ${report.disclaimer}',
               style: pw.TextStyle(
-                fontSize: 7.5,
+                fontSize: 8.5,
                 fontWeight: pw.FontWeight.bold,
                 color: const PdfColor.fromInt(0xFFB71C1C), // Red 900
               ),
             ),
-            pw.SizedBox(height: 2),
+            pw.SizedBox(height: 3),
             pw.Text(
               'Bu rapor yalnızca bilgilendirme ve ön değerlendirme amaçlı hazırlanmıştır. Geoteknik tasarım ve inşaat uygulamalarında resmi zemin etüt raporu yerine kullanılamaz.',
               style: const pw.TextStyle(
-                fontSize: 6.5,
+                fontSize: 7.5,
                 color: PdfColors.grey800,
               ),
             ),
           ],
         ),
       ),
-      pw.SizedBox(height: 6),
+      pw.SizedBox(height: 8),
 
       // Attribution & Developer
       pw.Row(
@@ -883,14 +883,14 @@ pw.Widget _buildFooter(ReportTextData report) {
           pw.Text(
             'Veri Kaynakları: ${report.sources}',
             style: const pw.TextStyle(
-              fontSize: 7,
+              fontSize: 8,
               color: PdfColors.grey600,
             ),
           ),
           pw.Text(
             report.developer,
             style: const pw.TextStyle(
-              fontSize: 7,
+              fontSize: 8,
               color: PdfColors.grey600,
             ),
           ),

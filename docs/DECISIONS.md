@@ -489,6 +489,11 @@ import 'package:printing/printing.dart';
 - **Root cause:** `ref.read(mapStateProvider.notifier).selectPoint(point)` schedules a frame. Calling `boundary.toImage()` immediately captures before the marker frame completes and can fail with `debugNeedsPaint`.
 - **Fix:** In `_captureMapSnapshot()`, wait for `addPostFrameCallback` so that the marker and vector layers complete layout and paint, followed by a 150ms settle delay and an `endOfFrame` check before invoking `boundary.toImage(pixelRatio: 2.0)`. Updated `test/fixtures/sample_map.png` with the real captured 800x488 map snapshot containing geology polygons, fault lines, and the red marker pin.
 
+### 5. Map Snapshot Visual State & Layer Inclusion
+- **Design Decision:** The PDF report's map snapshot intentionally reflects the map's visual state at the moment "Rapor Oluştur" is tapped — including the earthquake (Deprem) layer if it was toggled on by the user.
+- **Rationale:** This is a deliberate product decision by the developer (Ahmed), not a bug. If the user toggles on the earthquake layer to inspect nearby quakes in relation to their site, capturing those quake markers into the generated report provides relevant contextual information. Do not "fix" or alter this behavior in any future phase.
+
+
 
 
 

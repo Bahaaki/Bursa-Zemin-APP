@@ -218,5 +218,20 @@ void main() {
 
       expect(find.textContaining('SPT refüsü'), findsOneWidget);
     });
+
+    testWidgets('shows "DEMO VERİ" badge when demo samples are active',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildTestableScreen());
+      await tester.pumpAndSettle();
+
+      expect(find.text('DEMO VERİ'), findsOneWidget);
+    });
   });
 }

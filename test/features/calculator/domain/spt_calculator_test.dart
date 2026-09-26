@@ -30,20 +30,21 @@ void main() {
   });
 
   group('SPEC §4 (c) - Three reference cases from bearing_reference.json', () {
-    test('all reference cases match within stated tolerances', () {
-      final file = File('test/fixtures/bearing_reference.json');
+    final file = File('test/fixtures/bearing_reference.json');
+    final rawJson = file.readAsStringSync();
+    final fixtureList =
+        (jsonDecode(rawJson) as List<dynamic>).cast<Map<String, dynamic>>();
+
+    test('fixture contains exactly 3 reference cases', () {
       expect(file.existsSync(), isTrue,
           reason: 'bearing_reference.json fixture must exist');
-
-      final rawJson = file.readAsStringSync();
-      final fixtureList = jsonDecode(rawJson) as List<dynamic>;
-
       expect(fixtureList.length, equals(3),
           reason: 'Fixture must contain exactly 3 reference cases');
+    });
 
-      for (final item in fixtureList) {
-        final map = item as Map<String, dynamic>;
-        final id = map['id'] as String;
+    for (final map in fixtureList) {
+      final id = map['id'] as String;
+      test('$id matches within stated tolerance_percent', () {
         final soilKind = SoilKind.fromString(map['soil_kind'] as String);
         final nValue = map['n_value'] as int;
         final nCorrection = (map['n_correction'] as num?)?.toDouble() ?? 1.0;
@@ -81,17 +82,17 @@ void main() {
           qUltDiffPercent,
           lessThanOrEqualTo(tolerancePercent),
           reason:
-              '$id: q_ult ${result.qUlt} differs from expected $expectedQUlt by $qUltDiffPercent%, exceeding tolerance $tolerancePercent%',
+              '$id: q_ult ${result.qUlt} differs from expected $expectedQUlt by ${qUltDiffPercent.toStringAsFixed(2)}%, exceeding tolerance $tolerancePercent%',
         );
 
         expect(
           qAllDiffPercent,
           lessThanOrEqualTo(tolerancePercent),
           reason:
-              '$id: q_all ${result.qAll} differs from expected $expectedQAll by $qAllDiffPercent%, exceeding tolerance $tolerancePercent%',
+              '$id: q_all ${result.qAll} differs from expected $expectedQAll by ${qAllDiffPercent.toStringAsFixed(2)}%, exceeding tolerance $tolerancePercent%',
         );
-      }
-    });
+      });
+    }
   });
 
   group('SPEC §4 (d) - Monotonicity: q_ult increases with N', () {

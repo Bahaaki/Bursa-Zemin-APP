@@ -256,39 +256,70 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedSampleId,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Örnek SPT Verisi (İsteğe Bağlı)',
-                      border: InputBorder.none,
-                      prefixIcon: Icon(Icons.science_outlined),
-                    ),
-                    hint: const Text('Kayıtlı örneklerden seçin...'),
-                    items: [
-                      const DropdownMenuItem<String>(
-                        value: null,
-                        child: Text('Manuel Giriş (Seçim yok)'),
-                      ),
-                      ..._samples.map((s) {
-                        final demoBadge = s.isDemo ? ' [DEMO]' : '';
-                        return DropdownMenuItem<String>(
-                          value: s.id,
-                          child: Text(
-                            '${s.id}$demoBadge: ${s.soil.label}, N=${s.nValue}, D=${s.depthM} m',
-                            overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_samples.any((s) => s.isDemo))
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.amber.shade700),
+                            ),
+                            child: Text(
+                              'DEMO VERİ',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber.shade900,
+                              ),
+                            ),
                           ),
-                        );
-                      }),
+                        ),
+                      DropdownButtonFormField<String>(
+                        value: _selectedSampleId,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Örnek SPT Verisi (İsteğe Bağlı)',
+                          border: InputBorder.none,
+                          prefixIcon: Icon(Icons.science_outlined),
+                        ),
+                        hint: const Text('Kayıtlı örneklerden seçin...'),
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text('Manuel Giriş (Seçim yok)'),
+                          ),
+                          ..._samples.map((s) {
+                            final demoBadge = s.isDemo ? ' [DEMO]' : '';
+                            return DropdownMenuItem<String>(
+                              value: s.id,
+                              child: Text(
+                                '${s.id}$demoBadge: ${s.soil.label}, N=${s.nValue}, D=${s.depthM} m',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }),
+                        ],
+                        onChanged: (val) {
+                          if (val == null) {
+                            setState(() => _selectedSampleId = null);
+                          } else {
+                            final sample =
+                                _samples.firstWhere((s) => s.id == val);
+                            _applySample(sample);
+                          }
+                        },
+                      ),
                     ],
-                    onChanged: (val) {
-                      if (val == null) {
-                        setState(() => _selectedSampleId = null);
-                      } else {
-                        final sample = _samples.firstWhere((s) => s.id == val);
-                        _applySample(sample);
-                      }
-                    },
                   ),
                 ),
               ),

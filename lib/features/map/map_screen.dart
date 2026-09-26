@@ -5,7 +5,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/constants.dart';
+import '../geology/domain/assessment.dart';
+import '../geology/domain/risk_rules.dart';
 import 'providers/map_providers.dart';
+import 'widgets/ground_assessment_sheet.dart';
 import 'widgets/layer_toggle_sheet.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -93,6 +96,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
+  void _showAssessmentSheet({
+    required LatLng point,
+    required GeologyData geology,
+    FaultsData? faults,
+    FaultDistanceRules? rules,
+  }) {
+    final assessment = assess(
+      point: point,
+      geoIndex: geology.geoIndex,
+      faults: faults?.faults,
+      faultRules: rules ?? const FaultDistanceRules(),
+    );
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => GroundAssessmentSheet(
+        assessment: assessment,
+        point: point,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapStateProvider);
@@ -127,8 +154,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               initialZoom: 10.0,
               onTap: (TapPosition tapPosition, LatLng point) {
                 ref.read(mapStateProvider.notifier).selectPoint(point);
-                debugPrint(
-                    'Haritada seçilen konum: [${point.latitude}, ${point.longitude}]');
+                final geology = geologyAsync.valueOrNull;
+                if (geology == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Veriler yükleniyor, lütfen bekleyiniz...'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                  return;
+                }
+                final faults = faultsAsync.valueOrNull;
+                final rules = ref.read(riskRulesProvider).valueOrNull;
+                _showAssessmentSheet(
+                  point: point,
+                  geology: geology,
+                  faults: faults,
+                  rules: rules,
+                );
               },
             ),
             children: [
@@ -151,10 +194,26 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       point: mapState.selectedPoint!,
                       width: 40,
                       height: 40,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40,
+                      child: GestureDetector(
+                        onTap: () {
+                          final geology = geologyAsync.valueOrNull;
+                          if (geology != null) {
+                            final faults = faultsAsync.valueOrNull;
+                            final rules =
+                                ref.read(riskRulesProvider).valueOrNull;
+                            _showAssessmentSheet(
+                              point: mapState.selectedPoint!,
+                              geology: geology,
+                              faults: faults,
+                              rules: rules,
+                            );
+                          }
+                        },
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 40,
+                        ),
                       ),
                     ),
                   if (mapState.userLocation != null)

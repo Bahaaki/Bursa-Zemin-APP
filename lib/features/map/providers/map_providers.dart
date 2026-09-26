@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,6 +9,7 @@ import '../../geology/domain/classification.dart';
 import '../../geology/domain/geo_index.dart';
 import '../../geology/domain/geojson_parser.dart';
 import '../../geology/domain/models.dart';
+import '../../geology/domain/risk_rules.dart';
 
 /// Pre-computed and cached geology dataset with rendered polygons.
 class GeologyData {
@@ -243,4 +245,16 @@ class MapStateNotifier extends StateNotifier<MapState> {
 final mapStateProvider =
     StateNotifierProvider<MapStateNotifier, MapState>((ref) {
   return MapStateNotifier();
+});
+
+/// Provider for loading fault distance rules from assets/config/risk_rules.json.
+final riskRulesProvider = FutureProvider<FaultDistanceRules>((ref) async {
+  try {
+    final content =
+        await rootBundle.loadString('assets/config/risk_rules.json');
+    final json = jsonDecode(content) as Map<String, dynamic>;
+    return FaultDistanceRules.fromJson(json);
+  } catch (_) {
+    return const FaultDistanceRules();
+  }
 });

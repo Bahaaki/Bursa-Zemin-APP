@@ -33,6 +33,8 @@
 | 2026-09-25 | P3b | Subprojects Gradle configuration for Flutter plugins | `geolocator_android` evaluated without `flutter.compileSdkVersion` property in its scope (`Could not get unknown property 'flutter' for extension 'android'`). Resolved in `android/build.gradle` by evaluating after `:app` and exposing `:app`'s `flutter` extension or fallback values to `subproject.ext.flutter`. |
 | 2026-09-25 | P3b | ndkVersion = 25.1.8937393 | Set explicit `ndkVersion = "25.1.8937393"` in `android/app/build.gradle` to satisfy `geolocator_android` requirement and prevent build warning. |
 | 2026-09-26 | G2 | Gate G2 closed: Fault distance thresholds adopted as developer estimate | Adopted yuksek_max: 1.0 km, orta_max: 5.0 km in assets/config/risk_rules.json as developer's (Ahmed) engineering judgment, NOT an official standard citation. Conscious choice by project owner. Set verified: true, source: "developer_estimate". |
+| 2026-09-26 | P4 | Ground assessment bottom sheet & tap integration | Mapped map tap to domain assess() and opened GroundAssessmentSheet per SPEC §3.3. Handled outside-polygons, no-faults, and demo-data states. Decoupled sheet widget from Riverpod for direct testability. |
+
 
 
 

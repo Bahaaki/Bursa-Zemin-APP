@@ -35,6 +35,7 @@
 | 2026-09-26 | G2 | Gate G2 closed: Fault distance thresholds adopted as developer estimate | Adopted yuksek_max: 1.0 km, orta_max: 5.0 km in assets/config/risk_rules.json as developer's (Ahmed) engineering judgment, NOT an official standard citation. Conscious choice by project owner. Set verified: true, source: "developer_estimate". |
 | 2026-09-26 | P4 | Ground assessment bottom sheet & tap integration | Mapped map tap to domain assess() and opened GroundAssessmentSheet per SPEC §3.3. Handled outside-polygons, no-faults, and demo-data states. Decoupled sheet widget from Riverpod for direct testability. |
 | 2026-09-26 | G3 | Gate G3 closed: Geotech constants & bearing reference verification | Geotechnical constants and Terzaghi bearing capacity equations independently verified against published literature (Terzaghi 1943, Bowles 1996, Das 2011, Stroud 1974, Wolff 1989) and step-by-step manual arithmetic audit. Set geotech_constants.json verified: true, source: "developer_reviewed". |
+| 2026-09-26 | P5 | Pure Dart SPT Calculator & UI Integration | Pure Dart Terzaghi general shear bearing capacity calculator (zero Flutter imports per R8), linear interpolation for Nγ, Wolff/Stroud empirical correlations, strip/square/circular shape factors, and safety warnings. CalculatorScreen with live recalculation, intermediate parameters, sample preset loader, coordinate prefill, and navigation from MapScreen & GroundAssessmentSheet. 15 domain tests (matching 3 verified reference cases) + 6 widget tests. |
 
 
 

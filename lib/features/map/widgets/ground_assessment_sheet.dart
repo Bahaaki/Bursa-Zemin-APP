@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../core/constants.dart';
+import '../../calculator/calculator_screen.dart';
 import '../../geology/domain/models.dart';
 
 /// Modal bottom sheet displaying ground assessment details (SPEC §3.3).
@@ -277,16 +278,16 @@ class GroundAssessmentSheet extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('SPT hesaplayıcı yakında eklenecektir (P5)'),
-                          duration: Duration(seconds: 2),
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => CalculatorScreen(
+                            initialCoordinates: point,
+                          ),
                         ),
                       );
                     },
                     icon: const Icon(Icons.calculate_outlined, size: 18),
-                    label: const Text('SPT Hesabı (Yakında)'),
+                    label: const Text('SPT Hesabı'),
                   ),
                 ),
                 const SizedBox(width: 10),

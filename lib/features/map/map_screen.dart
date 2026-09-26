@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/constants.dart';
+import '../calculator/calculator_screen.dart';
 import '../geology/domain/assessment.dart';
 import '../geology/domain/risk_rules.dart';
 import 'providers/map_providers.dart';
@@ -133,6 +134,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       appBar: AppBar(
         title: const Text(kAppName),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calculate_outlined),
+            tooltip: 'SPT Hesabı',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CalculatorScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.layers_outlined),
             tooltip: 'Katmanlar',

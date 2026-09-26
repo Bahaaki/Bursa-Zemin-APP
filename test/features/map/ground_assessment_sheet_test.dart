@@ -1,4 +1,5 @@
 import 'package:bursa_zemin/core/constants.dart';
+import 'package:bursa_zemin/features/calculator/calculator_screen.dart';
 import 'package:bursa_zemin/features/geology/domain/models.dart';
 import 'package:bursa_zemin/features/map/widgets/ground_assessment_sheet.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,7 @@ void main() {
       expect(find.text(kDisclaimer), findsOneWidget);
 
       // Action buttons
-      expect(find.text('SPT Hesabı (Yakında)'), findsOneWidget);
+      expect(find.text('SPT Hesabı'), findsOneWidget);
       expect(find.text('Rapor Oluştur (Yakında)'), findsOneWidget);
     });
 
@@ -207,7 +208,7 @@ void main() {
       expect(find.text('Alüvyon'), findsOneWidget);
     });
 
-    testWidgets('SPT button shows "Yakında" snackbar when tapped',
+    testWidgets('SPT button navigates to CalculatorScreen when tapped',
         (tester) async {
       const assessment = Assessment(
         hasData: false,
@@ -218,10 +219,12 @@ void main() {
         buildTestableWidget(assessment: assessment, point: testPoint),
       );
 
-      await tester.tap(find.text('SPT Hesabı (Yakında)'));
-      await tester.pump();
-      expect(find.text('SPT hesaplayıcı yakında eklenecektir (P5)'),
-          findsOneWidget);
+      await tester.tap(find.text('SPT Hesabı'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CalculatorScreen), findsOneWidget);
+      expect(find.text('SPT Taşıma Gücü Hesabı'), findsOneWidget);
+      expect(find.textContaining('40.1932° K'), findsOneWidget);
     });
 
     testWidgets('Rapor button shows "Yakında" snackbar when tapped',

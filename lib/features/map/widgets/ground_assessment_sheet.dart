@@ -1,19 +1,26 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../core/constants.dart';
 import '../../calculator/calculator_screen.dart';
 import '../../geology/domain/models.dart';
+import '../../report/pdf_report.dart';
 
 /// Modal bottom sheet displaying ground assessment details (SPEC §3.3).
 class GroundAssessmentSheet extends StatelessWidget {
   final Assessment assessment;
   final LatLng point;
+  final Uint8List? mapSnapshotBytes;
+  final VoidCallback? onGenerateReport;
 
   const GroundAssessmentSheet({
     super.key,
     required this.assessment,
     required this.point,
+    this.mapSnapshotBytes,
+    this.onGenerateReport,
   });
 
   Color _getRiskColor(RiskLevel? level) {
@@ -282,6 +289,8 @@ class GroundAssessmentSheet extends StatelessWidget {
                         MaterialPageRoute<void>(
                           builder: (_) => CalculatorScreen(
                             initialCoordinates: point,
+                            assessment: assessment,
+                            mapSnapshotBytes: mapSnapshotBytes,
                           ),
                         ),
                       );
@@ -293,17 +302,9 @@ class GroundAssessmentSheet extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Rapor oluşturma özelliği yakında eklenecektir (P7)'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
+                    onPressed: () => _handleGenerateReport(context),
                     icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
-                    label: const Text('Rapor Oluştur (Yakında)'),
+                    label: const Text('Rapor Oluştur'),
                   ),
                 ),
               ],
@@ -313,6 +314,47 @@ class GroundAssessmentSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleGenerateReport(BuildContext context) async {
+    if (onGenerateReport != null) {
+      onGenerateReport!();
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Rapor hazırlanıyor...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    try {
+      final reportData = buildReportTextData(
+        assessment: assessment,
+        coordinates: point,
+        developerName: kDeveloperName,
+      );
+
+      final pdfBytes = await generatePdfReport(
+        reportData: reportData,
+        mapImageBytes: mapSnapshotBytes,
+      );
+
+      await sharePdfReport(
+        pdfBytes: pdfBytes,
+        filename: 'Bursa_Zemin_Raporu.pdf',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Rapor oluşturulamadı: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildRow(

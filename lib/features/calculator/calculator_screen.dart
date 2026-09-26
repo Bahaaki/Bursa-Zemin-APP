@@ -3,17 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/constants.dart';
+import '../geology/domain/models.dart';
+import '../report/pdf_report.dart';
 import 'domain/spt_calculator.dart';
 
 /// Screen for SPT bearing capacity calculation using Terzaghi general shear theory (SPEC §4).
 class CalculatorScreen extends StatefulWidget {
   final LatLng? initialCoordinates;
   final List<SptSample>? initialSamples;
+  final Assessment? assessment;
+  final Uint8List? mapSnapshotBytes;
 
   const CalculatorScreen({
     super.key,
     this.initialCoordinates,
     this.initialSamples,
+    this.assessment,
+    this.mapSnapshotBytes,
   });
 
   @override
@@ -181,6 +187,45 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     _recalculate();
   }
 
+  Future<void> _generateAndShareReport() async {
+    if (_result == null) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Rapor hazırlanıyor...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    try {
+      final reportData = buildReportTextData(
+        assessment: widget.assessment,
+        coordinates: widget.initialCoordinates,
+        bearingResult: _result,
+        developerName: kDeveloperName,
+      );
+
+      final pdfBytes = await generatePdfReport(
+        reportData: reportData,
+        mapImageBytes: widget.mapSnapshotBytes,
+      );
+
+      await sharePdfReport(
+        pdfBytes: pdfBytes,
+        filename: 'Bursa_Zemin_SPT_Raporu.pdf',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Rapor oluşturulamadı: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -188,6 +233,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SPT Taşıma Gücü Hesabı'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            tooltip: 'Rapor Oluştur',
+            onPressed: _result != null ? _generateAndShareReport : null,
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -758,6 +810,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  onPressed: _generateAndShareReport,
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  label: const Text('Rapor Oluştur ve Paylaş (PDF)'),
                 ),
                 const SizedBox(height: 14),
               ],

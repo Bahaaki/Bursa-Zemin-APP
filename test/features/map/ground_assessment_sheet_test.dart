@@ -75,7 +75,7 @@ void main() {
 
       // Action buttons
       expect(find.text('SPT Hesabı'), findsOneWidget);
-      expect(find.text('Rapor Oluştur (Yakında)'), findsOneWidget);
+      expect(find.text('Rapor Oluştur'), findsOneWidget);
     });
 
     testWidgets('renders Orta risk level and recommendation', (tester) async {
@@ -227,21 +227,32 @@ void main() {
       expect(find.textContaining('40.1932° K'), findsOneWidget);
     });
 
-    testWidgets('Rapor button shows "Yakında" snackbar when tapped',
+    testWidgets('Rapor button triggers onGenerateReport callback when provided',
         (tester) async {
+      bool reportInvoked = false;
       const assessment = Assessment(
         hasData: false,
         recommendation: 'Veri yok – zemin etüdü gerekli',
       );
 
       await tester.pumpWidget(
-        buildTestableWidget(assessment: assessment, point: testPoint),
+        MaterialApp(
+          home: Scaffold(
+            body: GroundAssessmentSheet(
+              assessment: assessment,
+              point: testPoint,
+              onGenerateReport: () {
+                reportInvoked = true;
+              },
+            ),
+          ),
+        ),
       );
 
-      await tester.tap(find.text('Rapor Oluştur (Yakında)'));
+      expect(find.text('Rapor Oluştur'), findsOneWidget);
+      await tester.tap(find.text('Rapor Oluştur'));
       await tester.pump();
-      expect(find.text('Rapor oluşturma özelliği yakında eklenecektir (P7)'),
-          findsOneWidget);
+      expect(reportInvoked, isTrue);
     });
   });
 }

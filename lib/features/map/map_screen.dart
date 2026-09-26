@@ -1,4 +1,8 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,6 +28,7 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   late final MapController _mapController;
+  final GlobalKey _mapKey = GlobalKey();
 
   @override
   void initState() {
@@ -100,18 +105,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
-  void _showAssessmentSheet({
+  Future<Uint8List?> _captureMapSnapshot() async {
+    try {
+      final boundary =
+          _mapKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return null;
+      final image = await boundary.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      return byteData?.buffer.asUint8List();
+    } catch (e) {
+      debugPrint('Harita görüntüsü alınamadı: $e');
+      return null;
+    }
+  }
+
+  Future<void> _showAssessmentSheet({
     required LatLng point,
     required GeologyData geology,
     FaultsData? faults,
     FaultDistanceRules? rules,
-  }) {
+  }) async {
+    final mapBytes = await _captureMapSnapshot();
     final assessment = assess(
       point: point,
       geoIndex: geology.geoIndex,
       faults: faults?.faults,
       faultRules: rules ?? const FaultDistanceRules(),
     );
+
+    if (!mounted) return;
 
     showModalBottomSheet<void>(
       context: context,
@@ -120,6 +142,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       builder: (_) => GroundAssessmentSheet(
         assessment: assessment,
         point: point,
+        mapSnapshotBytes: mapBytes,
       ),
     );
   }
@@ -163,100 +186,104 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       ),
       body: Stack(
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: const LatLng(kDefaultLat, kDefaultLon),
-              initialZoom: 10.0,
-              onTap: (TapPosition tapPosition, LatLng point) {
-                ref.read(mapStateProvider.notifier).selectPoint(point);
-                final geology = geologyAsync.valueOrNull;
-                if (geology == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Veriler yükleniyor, lütfen bekleyiniz...'),
-                      duration: Duration(seconds: 1),
-                    ),
+          RepaintBoundary(
+            key: _mapKey,
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: const LatLng(kDefaultLat, kDefaultLon),
+                initialZoom: 10.0,
+                onTap: (TapPosition tapPosition, LatLng point) {
+                  ref.read(mapStateProvider.notifier).selectPoint(point);
+                  final geology = geologyAsync.valueOrNull;
+                  if (geology == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Veriler yükleniyor, lütfen bekleyiniz...'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                    return;
+                  }
+                  final faults = faultsAsync.valueOrNull;
+                  final rules = ref.read(riskRulesProvider).valueOrNull;
+                  _showAssessmentSheet(
+                    point: point,
+                    geology: geology,
+                    faults: faults,
+                    rules: rules,
                   );
-                  return;
-                }
-                final faults = faultsAsync.valueOrNull;
-                final rules = ref.read(riskRulesProvider).valueOrNull;
-                _showAssessmentSheet(
-                  point: point,
-                  geology: geology,
-                  faults: faults,
-                  rules: rules,
-                );
-              },
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: kAppId,
+                ),
+                if (mapState.showGeology && geologyAsync.hasValue)
+                  PolygonLayer(
+                    polygons: geologyAsync.requireValue.cachedPolygons,
+                  ),
+                if (mapState.showFaults && faultsAsync.hasValue)
+                  PolylineLayer(
+                    polylines: faultsAsync.requireValue.cachedPolylines,
+                  ),
+                MarkerLayer(
+                  markers: [
+                    if (mapState.selectedPoint != null)
+                      Marker(
+                        point: mapState.selectedPoint!,
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () {
+                            final geology = geologyAsync.valueOrNull;
+                            if (geology != null) {
+                              final faults = faultsAsync.valueOrNull;
+                              final rules =
+                                  ref.read(riskRulesProvider).valueOrNull;
+                              _showAssessmentSheet(
+                                point: mapState.selectedPoint!,
+                                geology: geology,
+                                faults: faults,
+                                rules: rules,
+                              );
+                            }
+                          },
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ),
+                      ),
+                    if (mapState.userLocation != null)
+                      Marker(
+                        point: mapState.userLocation!,
+                        width: 24,
+                        height: 24,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (mapState.showQuakes && quakesAsync?.valueOrNull != null)
+                      for (final quake in quakesAsync!.valueOrNull!)
+                        _buildQuakeMarker(context, quake),
+                  ],
+                ),
+              ],
             ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: kAppId,
-              ),
-              if (mapState.showGeology && geologyAsync.hasValue)
-                PolygonLayer(
-                  polygons: geologyAsync.requireValue.cachedPolygons,
-                ),
-              if (mapState.showFaults && faultsAsync.hasValue)
-                PolylineLayer(
-                  polylines: faultsAsync.requireValue.cachedPolylines,
-                ),
-              MarkerLayer(
-                markers: [
-                  if (mapState.selectedPoint != null)
-                    Marker(
-                      point: mapState.selectedPoint!,
-                      width: 40,
-                      height: 40,
-                      child: GestureDetector(
-                        onTap: () {
-                          final geology = geologyAsync.valueOrNull;
-                          if (geology != null) {
-                            final faults = faultsAsync.valueOrNull;
-                            final rules =
-                                ref.read(riskRulesProvider).valueOrNull;
-                            _showAssessmentSheet(
-                              point: mapState.selectedPoint!,
-                              geology: geology,
-                              faults: faults,
-                              rules: rules,
-                            );
-                          }
-                        },
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40,
-                        ),
-                      ),
-                    ),
-                  if (mapState.userLocation != null)
-                    Marker(
-                      point: mapState.userLocation!,
-                      width: 24,
-                      height: 24,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (mapState.showQuakes && quakesAsync?.valueOrNull != null)
-                    for (final quake in quakesAsync!.valueOrNull!)
-                      _buildQuakeMarker(context, quake),
-                ],
-              ),
-            ],
           ),
 
           // OSM Attribution

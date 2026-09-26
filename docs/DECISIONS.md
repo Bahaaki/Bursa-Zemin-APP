@@ -37,6 +37,7 @@
 | 2026-09-26 | G3 | Gate G3 closed: Geotech constants & bearing reference verification | Geotechnical constants and Terzaghi bearing capacity equations independently verified against published literature (Terzaghi 1943, Bowles 1996, Das 2011, Stroud 1974, Wolff 1989) and step-by-step manual arithmetic audit. Set geotech_constants.json verified: true, source: "developer_reviewed". |
 | 2026-09-26 | P5 | Pure Dart SPT Calculator & UI Integration | Pure Dart Terzaghi general shear bearing capacity calculator (zero Flutter imports per R8), linear interpolation for Nγ, Wolff/Stroud empirical correlations, strip/square/circular shape factors, and safety warnings. CalculatorScreen with live recalculation, intermediate parameters, sample preset loader, coordinate prefill, and navigation from MapScreen & GroundAssessmentSheet. 15 domain tests (matching 3 verified reference cases) + 6 widget tests. |
 | 2026-09-26 | P6 | AFAD Earthquake Layer & Client Integration | Verified endpoint `https://deprem.afad.gov.tr/apiv2/event/filter` (redirecting to `servisnet.afad.gov.tr/...`). Added `http: 1.6.0` from whitelist. Real request for Bursa bounding box (last 30 days, minmag 2.0) yielded 62 records saved to `test/fixtures/afad_sample.json`. Implemented pure Dart `Quake` model (R8), `AfadClient` with 10s timeout, 10 min cache, typed errors (`AfadTimeoutException`, `AfadNetworkException`, `AfadParseException`, `AfadHttpException`). Map layer renders markers sized by magnitude; tap shows `QuakeDetailCard` (time, magnitude, depth, location, explicit non-prediction note); error state displays `Deprem verisi alınamadı` banner without breaking map. 15 new tests (6 domain, 6 client, 3 widget). |
+| 2026-09-27 | P7 | Single-page PDF report with Noto Sans & printing | Added `pdf: 3.11.3` and `printing: 5.14.3` from SPEC §8 whitelist. Loaded Google Fonts `NotoSans` (Regular, Bold, Italic) TTF from `assets/fonts/` for mandatory Turkish Unicode glyph support. Implemented single A4 page report per SPEC §6 with RepaintBoundary map snapshot export (fallback handling if capture fails), ground assessment summary, SPT calculator results (if present), prominent disclaimer banner, and metadata attribution. Share/save wired via `Printing.sharePdf`. 4 new report tests (pure text golden builder, page count constraint, and fallback handling). |
 
 
 
@@ -444,5 +445,41 @@ To ensure genuine independent verification (avoiding shared code bugs between te
 - **Behavior observed:** Queries to `https://deprem.afad.gov.tr/apiv2/event/filter` return an HTTP 302 Found redirect to `https://servisnet.afad.gov.tr/apiv2/event/filter`. This was verified during live endpoint exploration via `curl -L`.
 - **Status in app:** At runtime on devices, `AfadClient` relies on `package:http` (and the platform `HttpClient`) automatically following HTTP 302 redirects by default (`followRedirects = true`).
 - **Test coverage gap:** The automated unit test suite exercises `AfadClient` using `http.testing.MockClient` returning direct 200 OK responses; it does not simulate a 302 redirect response chain. As such, automatic 302 redirect following is not explicitly exercised in unit tests and relies on standard library transport behavior.
+
+---
+
+## Phase P7 API Reference & Verification (pdf 3.11.3, printing 5.14.3)
+
+Verified directly against resolved source code in the pub cache before use (Rule R2).
+
+### 1. `pdf: 3.11.3`
+**Imports:**
+```dart
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+```
+**Exact Constructor & Method Signatures Used:**
+- `pw.Document({PdfPageFormat? pageMode, ...})`
+- `pw.Font.ttf(ByteData data)`: wraps TrueType font bytes into a `pw.Font`.
+- `pw.ThemeData.withFont({required pw.Font base, pw.Font? bold, pw.Font? italic, pw.Font? boldItalic, List<pw.Font> fontFallback})`: sets global document typography with Turkish glyph support.
+- `doc.addPage(pw.Page(pageFormat: PdfPageFormat.a4, margin: ..., build: (pw.Context context) => pw.Widget))`
+- `doc.save()`: returns `Future<Uint8List>`.
+- `pw.MemoryImage(Uint8List bytes)`: creates an image provider from PNG bytes.
+- `pw.Image(pw.ImageProvider image, {double? width, double? height, pw.BoxFit? fit})`
+
+**Critical Traps Discovered & Solved:**
+1. **Dart 3.5 const eval trap:** `PdfColors` constants (e.g. `PdfColors.grey700`) are computed using `const PdfColor.fromInt(...)` with bitwise shift `>>`. In Dart 3.5.0, using them in `const pw.TextStyle(...)` triggers `const_eval_type_bool_num_string` compilation failure. Solution: avoid marking `pw.TextStyle` or `pw.BoxDecoration` as `const` when referencing `PdfColors`.
+2. **Type1 Font Unicode Fallback Trap:** When `fontStyle: pw.FontStyle.italic` was evaluated without an explicit `italic` font in `ThemeData.withFont`, `pdf` defaulted to Type 1 `Helvetica-Oblique`, emitting `Helvetica-Oblique has no Unicode support` and crashing or mangling Turkish characters. Solution: downloaded `NotoSans-Italic.ttf`, passed `italic: fonts.italic ?? fonts.regular` to `ThemeData.withFont`, and set explicit font fallback.
+3. **Transitive Dependency Test Trap:** `package:image` is a transitive dependency pulled by `pdf`. Using `package:image` in `test/` violates lint rule `depend_on_referenced_packages`. Solution: test code loads a static 135-byte PNG fixture from `test/fixtures/sample_map.png` without extra packages.
+
+### 2. `printing: 5.14.3`
+**Import:**
+```dart
+import 'package:printing/printing.dart';
+```
+**Exact Signature Used:**
+- `Printing.sharePdf({required Uint8List bytes, String filename = 'document.pdf', String? subject, ...})`: returns `Future<bool>`.
+- Used to share and save generated reports natively across platforms without custom platform channel code.
+
 
 

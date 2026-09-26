@@ -481,5 +481,9 @@ import 'package:printing/printing.dart';
 - `Printing.sharePdf({required Uint8List bytes, String filename = 'document.pdf', String? subject, ...})`: returns `Future<bool>`.
 - Used to share and save generated reports natively across platforms without custom platform channel code.
 
+### 3. Font Licensing Notice (for P9's README)
+- Note for P9: Noto Sans is used under the SIL Open Font License (OFL) and must be credited in the app / README.
+
+
 
 

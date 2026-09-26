@@ -263,8 +263,37 @@ Geliştirici: Ahmed
       expect(samplePdfFile.lengthSync(), greaterThan(5000));
     });
 
-    test('generates valid PDF when map snapshot capture fails (null bytes)',
+    test(
+        'renders "Harita görüntüsü alınamadı" fallback widget and builds valid PDF when snapshot fails (null or corrupt bytes)',
         () async {
+      // 1. Direct widget test: null bytes produce fallback text
+      final nullWidget = buildMapSnapshotWidget(
+        null,
+        hasBearing: false,
+        italicFont: testFonts.italic ?? testFonts.regular,
+      );
+      expect(nullWidget, isA<pw.Container>());
+      final nullContainer = nullWidget as pw.Container;
+      expect(nullContainer.child, isA<pw.Text>());
+      final nullText = nullContainer.child as pw.Text;
+      expect((nullText.text as pw.TextSpan).text,
+          equals('Harita görüntüsü alınamadı'));
+
+      // 2. Direct widget test: corrupt bytes also produce fallback text gracefully
+      final corruptBytes = Uint8List.fromList([0x00, 0x01, 0x02, 0x03, 0x04]);
+      final corruptWidget = buildMapSnapshotWidget(
+        corruptBytes,
+        hasBearing: false,
+        italicFont: testFonts.italic ?? testFonts.regular,
+      );
+      expect(corruptWidget, isA<pw.Container>());
+      final corruptContainer = corruptWidget as pw.Container;
+      expect(corruptContainer.child, isA<pw.Text>());
+      final corruptText = corruptContainer.child as pw.Text;
+      expect((corruptText.text as pw.TextSpan).text,
+          equals('Harita görüntüsü alınamadı'));
+
+      // 3. Document build test: null bytes generate valid single-page A4 PDF
       final assessment = Assessment(
         hasData: true,
         feature: GeoFeature(
@@ -295,18 +324,29 @@ Geliştirici: Ahmed
         developerName: 'Ahmed',
       );
 
-      final pdfDoc = buildPdfDocument(
+      final pdfDocNull = buildPdfDocument(
         reportData: reportData,
         mapImageBytes: null, // Simulated snapshot failure
         fonts: testFonts,
         compress: false,
       );
+      expect(pdfDocNull.document.catalog.pdfPageList.pages.length, equals(1));
+      final bytesNull = await pdfDocNull.save();
+      expect(bytesNull.isNotEmpty, isTrue);
+      expect(String.fromCharCodes(bytesNull.take(4)), equals('%PDF'));
 
-      expect(pdfDoc.document.catalog.pdfPageList.pages.length, equals(1));
-
-      final bytes = await pdfDoc.save();
-      expect(bytes.isNotEmpty, isTrue);
-      expect(String.fromCharCodes(bytes.take(4)), equals('%PDF'));
+      // 4. Document build test: corrupt bytes generate valid single-page A4 PDF
+      final pdfDocCorrupt = buildPdfDocument(
+        reportData: reportData,
+        mapImageBytes: corruptBytes, // Corrupted bytes failure
+        fonts: testFonts,
+        compress: false,
+      );
+      expect(
+          pdfDocCorrupt.document.catalog.pdfPageList.pages.length, equals(1));
+      final bytesCorrupt = await pdfDocCorrupt.save();
+      expect(bytesCorrupt.isNotEmpty, isTrue);
+      expect(String.fromCharCodes(bytesCorrupt.take(4)), equals('%PDF'));
     });
   });
 }

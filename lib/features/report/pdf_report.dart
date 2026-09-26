@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pdf/pdf.dart';
@@ -469,28 +470,44 @@ pw.Widget _buildHeader(ReportTextData report) {
   );
 }
 
+/// Builds the map snapshot widget or fallback notice.
+///
+/// Exposed for testing fallback behavior when map capture fails or bytes are corrupted.
+@visibleForTesting
+pw.Widget buildMapSnapshotWidget(
+  Uint8List? mapBytes, {
+  required bool hasBearing,
+  pw.Font? italicFont,
+}) =>
+    _buildMapSnapshot(mapBytes, hasBearing: hasBearing, italicFont: italicFont);
+
 pw.Widget _buildMapSnapshot(
   Uint8List? mapBytes, {
   required bool hasBearing,
   pw.Font? italicFont,
 }) {
   if (mapBytes != null && mapBytes.isNotEmpty) {
-    return pw.Container(
-      height: hasBearing ? 120 : 160,
-      width: double.infinity,
-      decoration: pw.BoxDecoration(
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
-        border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
-      ),
-      child: pw.ClipRRect(
-        horizontalRadius: 4,
-        verticalRadius: 4,
-        child: pw.Image(
-          pw.MemoryImage(mapBytes),
-          fit: pw.BoxFit.cover,
+    try {
+      final img = pw.MemoryImage(mapBytes);
+      return pw.Container(
+        height: hasBearing ? 120 : 160,
+        width: double.infinity,
+        decoration: pw.BoxDecoration(
+          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+          border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
         ),
-      ),
-    );
+        child: pw.ClipRRect(
+          horizontalRadius: 4,
+          verticalRadius: 4,
+          child: pw.Image(
+            img,
+            fit: pw.BoxFit.cover,
+          ),
+        ),
+      );
+    } catch (_) {
+      // Degrade gracefully if image bytes cannot be decoded
+    }
   }
 
   return pw.Container(

@@ -25,7 +25,7 @@
     "note": "q_ult = cu*Nc + q*Nq = 60.0*5.7 + 18.0*1.0 = 360.0 kPa; q_all = 360.0 / 3.0 = 120.0 kPa."
   },
   {
-    "id": "case_2_sand_strip_published",
+    "id": "case_2_sand_strip_computed",
     "description": "Continuous (strip) footing on clean sand with phi ~ 30 deg (N = 10)",
     "soil_kind": "kum",
     "n_value": 10,
@@ -46,8 +46,8 @@
     "expected_q_ult_kpa": 1350.3,
     "expected_q_all_kpa": 450.1,
     "tolerance_percent": 4.0,
-    "source": "Published geotechnical course example (StructX / Das Principles of Foundation Engineering solved strip footing on sand at phi=30 deg: Nq=22.5, Ng=19.7, q_ult=1341.9 kPa, q_all=447.3 kPa); audited against Wolff (1989) Peck-Hanson-Thornburn N=10 (phi=30.046 deg, q_ult=1350.3 kPa, q_all=450.1 kPa).",
-    "note": "Discrepancy between textbook rounded table factors (1341.9 kPa) and analytical Wolff/Terzaghi factors (1350.3 kPa) is 0.63%, well within the 4% tolerance."
+    "source": "computed_only, no verified external citation",
+    "note": "Calculated via Wolff (1989) phi correlation from N=10 and Terzaghi strip footing general shear equations. No verified external textbook citation found with these exact parameters and numerical answers."
   },
   {
     "id": "case_3_sand_square_audit",

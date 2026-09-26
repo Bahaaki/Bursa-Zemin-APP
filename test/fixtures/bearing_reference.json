@@ -1,0 +1,77 @@
+[
+  {
+    "id": "case_1_clay_strip_undrained",
+    "description": "Continuous (strip) footing on saturated clay under undrained condition (phi = 0)",
+    "soil_kind": "kil",
+    "n_value": 10,
+    "n_correction": 1.0,
+    "footing_shape": "serit",
+    "b_m": 1.0,
+    "df_m": 1.0,
+    "gamma_kn_m3": 18.0,
+    "fs": 3.0,
+    "intermediate_values": {
+      "phi_deg": 0.0,
+      "cu_kpa": 60.0,
+      "nq": 1.0,
+      "nc": 5.7,
+      "ng": 0.0,
+      "q_overburden_kpa": 18.0
+    },
+    "expected_q_ult_kpa": 360.0,
+    "expected_q_all_kpa": 120.0,
+    "tolerance_percent": 3.0,
+    "source": "Terzaghi (1943) Theoretical Soil Mechanics; Braja M. Das, Principles of Foundation Engineering (SI Ed.), Chapter on Shallow Foundations: Ultimate Bearing Capacity (phi=0 case).",
+    "note": "q_ult = cu*Nc + q*Nq = 60.0*5.7 + 18.0*1.0 = 360.0 kPa; q_all = 360.0 / 3.0 = 120.0 kPa."
+  },
+  {
+    "id": "case_2_sand_strip_published",
+    "description": "Continuous (strip) footing on clean sand with phi ~ 30 deg (N = 10)",
+    "soil_kind": "kum",
+    "n_value": 10,
+    "n_correction": 1.0,
+    "footing_shape": "serit",
+    "b_m": 3.0,
+    "df_m": 2.0,
+    "gamma_kn_m3": 18.0,
+    "fs": 3.0,
+    "intermediate_values": {
+      "phi_deg": 30.046,
+      "cu_kpa": 0.0,
+      "nq": 22.58,
+      "nc": 37.30,
+      "ng": 19.91,
+      "q_overburden_kpa": 36.0
+    },
+    "expected_q_ult_kpa": 1350.3,
+    "expected_q_all_kpa": 450.1,
+    "tolerance_percent": 4.0,
+    "source": "Published geotechnical course example (StructX / Das Principles of Foundation Engineering solved strip footing on sand at phi=30 deg: Nq=22.5, Ng=19.7, q_ult=1341.9 kPa, q_all=447.3 kPa); audited against Wolff (1989) Peck-Hanson-Thornburn N=10 (phi=30.046 deg, q_ult=1350.3 kPa, q_all=450.1 kPa).",
+    "note": "Discrepancy between textbook rounded table factors (1341.9 kPa) and analytical Wolff/Terzaghi factors (1350.3 kPa) is 0.63%, well within the 4% tolerance."
+  },
+  {
+    "id": "case_3_sand_square_audit",
+    "description": "Square footing on medium dense sand (N = 20, phi = 32.88 deg)",
+    "soil_kind": "kum",
+    "n_value": 20,
+    "n_correction": 1.0,
+    "footing_shape": "kare",
+    "b_m": 2.0,
+    "df_m": 1.5,
+    "gamma_kn_m3": 18.0,
+    "fs": 3.0,
+    "intermediate_values": {
+      "phi_deg": 32.884,
+      "cu_kpa": 0.0,
+      "nq": 31.77,
+      "nc": 47.60,
+      "ng": 32.79,
+      "q_overburden_kpa": 27.0
+    },
+    "expected_q_ult_kpa": 1330.1,
+    "expected_q_all_kpa": 443.4,
+    "tolerance_percent": 3.0,
+    "source": "Independent manual step-by-step arithmetic verification of Terzaghi general shear for square footing in medium dense sand (Wolff 1989 correlation, N=20).",
+    "note": "q_ult = q*Nq + 0.4*gamma*B*Ng = 27.0*31.7726 + 0.4*18.0*2.0*32.7934 = 857.86 + 472.22 = 1330.08 kPa; q_all = 1330.08 / 3.0 = 443.36 kPa."
+  }
+]

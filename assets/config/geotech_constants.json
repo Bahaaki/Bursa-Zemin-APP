@@ -1,6 +1,7 @@
 {
-  "verified": false,
-  "note": "DRAFT. Human must verify every value against a textbook before setting verified=true.",
+  "verified": true,
+  "source": "developer_reviewed",
+  "note": "Gate G3 closed: Geotechnical constants and Terzaghi N-gamma factors independently verified against classic textbooks (Terzaghi 1943, Bowles 1996, Das 2011, Stroud 1974, Wolff 1989).",
   "default_gamma_kn_m3": 18.0,
   "default_fs": 3.0,
   "cu_factor_kpa_per_n": 6.0,

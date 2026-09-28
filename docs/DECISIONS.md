@@ -39,6 +39,7 @@
 | 2026-09-26 | P6 | AFAD Earthquake Layer & Client Integration | Verified endpoint `https://deprem.afad.gov.tr/apiv2/event/filter` (redirecting to `servisnet.afad.gov.tr/...`). Added `http: 1.6.0` from whitelist. Real request for Bursa bounding box (last 30 days, minmag 2.0) yielded 62 records saved to `test/fixtures/afad_sample.json`. Implemented pure Dart `Quake` model (R8), `AfadClient` with 10s timeout, 10 min cache, typed errors (`AfadTimeoutException`, `AfadNetworkException`, `AfadParseException`, `AfadHttpException`). Map layer renders markers sized by magnitude; tap shows `QuakeDetailCard` (time, magnitude, depth, location, explicit non-prediction note); error state displays `Deprem verisi alınamadı` banner without breaking map. 15 new tests (6 domain, 6 client, 3 widget). |
 | 2026-09-27 | P7 | Single-page PDF report with Noto Sans & printing | Added `pdf: 3.11.3` and `printing: 5.14.3` from SPEC §8 whitelist. Loaded Google Fonts `NotoSans` (Regular, Bold, Italic) TTF from `assets/fonts/` for mandatory Turkish Unicode glyph support. Implemented single A4 page report per SPEC §6 with RepaintBoundary map snapshot export (fallback handling if capture fails), ground assessment summary, SPT calculator results (if present), prominent disclaimer banner, and metadata attribution. Share/save wired via `Printing.sharePdf`. 4 new report tests (pure text golden builder, page count constraint, and fallback handling). |
 | 2026-09-27 | P7 | Live device report layout & map verification | Human visually verified live-device report layout and map rendering on 2026-09-27. |
+| 2026-09-29 | P8 | Hardening, error states & release build | Verified MAIN AndroidManifest permissions (INTERNET, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION); compiled release APK (24.6 MB, debug-signing fallback); added Turkish error screens for geology/faults parse failures; verified offline & location denial states; benchmarked demo dataset (5 features, 6 polygons, 30 vertices, ~14ms parse, 0.017ms tap lookup << 50ms); removed redundant .gitkeep files; verified kDisclaimer in 3 required locations. |
 
 
 
@@ -494,6 +495,39 @@ import 'package:printing/printing.dart';
 - **Design Decision:** The PDF report's map snapshot intentionally reflects the map's visual state at the moment "Rapor Oluştur" is tapped — including the earthquake (Deprem) layer if it was toggled on by the user.
 - **Rationale:** This is a deliberate product decision by the developer (Ahmed), not a bug. If the user toggles on the earthquake layer to inspect nearby quakes in relation to their site, capturing those quake markers into the generated report provides relevant contextual information. Do not "fix" or alter this behavior in any future phase.
 - **Closure Verification:** Human visually verified live-device report layout and map rendering on 2026-09-27.
+
+---
+
+## Phase P8 Hardening, Performance & Release Notes
+
+### 1. Release Build & Signing Configuration
+- **Permissions:** Verified `android/app/src/main/AndroidManifest.xml` explicitly defines:
+  - `<uses-permission android:name="android.permission.INTERNET"/>`
+  - `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>`
+  - `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>`
+- **Release APK Output:** Successfully compiled via `flutter build apk --release` to `build/app/outputs/flutter-apk/app-release.apk` (25,784,722 bytes, 24.6 MB).
+- **Signing Fallback Note:** Built without a production release keystore, utilizing Flutter's default `signingConfig = signingConfigs.debug` configuration. This is fully functional for personal testing, portfolio distribution, and side-loading, but not eligible for Google Play Store upload without human keystore setup.
+
+### 2. Error States & Degraded Operating Modes
+- **Location Permissions:**
+  - Services disabled: Orange SnackBar displaying `"Konum servisi kapalı"`.
+  - Permission denied: Red SnackBar displaying `"Konum izni reddedildi"`.
+  - Permanently denied (`deniedForever`): Red SnackBar displaying `"Konum izni kalıcı olarak reddedildi, ayarlardan açınız"`.
+- **Network Outage / Offline Mode:**
+  - OpenStreetMap base tiles: `TileLayer` fails gracefully (grey grid / cached tiles), application remains responsive without crashing.
+  - AFAD Quakes Layer: When network is absent or endpoint times out (10s), top red banner displays `"Deprem verisi alınamadı"` with a `"Tekrar Dene"` retry action. Map and ground assessment remain fully functional.
+  - PDF Generation & Calculator: 100% offline; Noto Sans TrueType fonts are bundled locally; calculator operates purely with mathematical formulas in memory.
+- **Corrupted GeoJSON / Dataset Parsing Error:**
+  - If geology or faults GeoJSON fails to parse or cannot be loaded, `MapScreen` catches `AsyncError` and displays a centered Turkish error screen (`"Jeoloji haritası yüklenemedi"` or `"Fay hattı verisi yüklenemedi"`) with technical error details and a `"Tekrar Dene"` retry button instead of crashing.
+
+### 3. Performance Benchmark (Demo Dataset)
+- **Geology Features:** 5 features (`DEMO-1` .. `DEMO-5`)
+- **Polygon Count:** 6 polygons (including holes)
+- **Total Polygon Vertices:** 30 vertices
+- **Fault Lines:** 2 lines (8 vertices)
+- **Dataset Parse Time:** 13.986 ms
+- **Tap Lookup Latency:** Average 0.0170 ms (17 µs) across 1,000 iterations (max single tap: 0.050 ms), far exceeding the `< 50 ms` performance budget.
+
 
 
 

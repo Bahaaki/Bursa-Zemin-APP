@@ -173,6 +173,62 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final faultsAsync = ref.watch(faultsDataProvider);
     final quakesAsync = mapState.showQuakes ? ref.watch(quakesProvider) : null;
 
+    // Handle GeoJSON / dataset parse or load failures gracefully (P8 hardening)
+    if (geologyAsync.hasError || faultsAsync.hasError) {
+      final error = geologyAsync.error ?? faultsAsync.error;
+      final isGeology = geologyAsync.hasError;
+      return Scaffold(
+        appBar: AppBar(title: const Text(kAppName)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red.shade700),
+                const SizedBox(height: 16),
+                Text(
+                  isGeology
+                      ? 'Jeoloji haritası yüklenemedi'
+                      : 'Fay hattı verisi yüklenemedi',
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Harita verisi işlenirken bir hata oluştu. Lütfen veri dosyalarını kontrol ediniz.',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$error',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (geologyAsync.hasError) {
+                      ref.invalidate(geologyDataProvider);
+                    }
+                    if (faultsAsync.hasError) {
+                      ref.invalidate(faultsDataProvider);
+                    }
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Tekrar Dene'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final isDemo = (geologyAsync.valueOrNull?.isDemo ?? false) ||
         (faultsAsync.valueOrNull?.isDemo ?? false);
 

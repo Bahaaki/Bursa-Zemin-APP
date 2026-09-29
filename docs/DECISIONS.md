@@ -40,6 +40,7 @@
 | 2026-09-27 | P7 | Single-page PDF report with Noto Sans & printing | Added `pdf: 3.11.3` and `printing: 5.14.3` from SPEC §8 whitelist. Loaded Google Fonts `NotoSans` (Regular, Bold, Italic) TTF from `assets/fonts/` for mandatory Turkish Unicode glyph support. Implemented single A4 page report per SPEC §6 with RepaintBoundary map snapshot export (fallback handling if capture fails), ground assessment summary, SPT calculator results (if present), prominent disclaimer banner, and metadata attribution. Share/save wired via `Printing.sharePdf`. 4 new report tests (pure text golden builder, page count constraint, and fallback handling). |
 | 2026-09-27 | P7 | Live device report layout & map verification | Human visually verified live-device report layout and map rendering on 2026-09-27. |
 | 2026-09-29 | P8 | Hardening, error states & release build | Verified MAIN AndroidManifest permissions (INTERNET, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION); compiled release APK (24.6 MB, debug-signing fallback); added Turkish error screens for geology/faults parse failures; verified offline & location denial states; benchmarked demo dataset (5 features, 6 polygons, 30 vertices, ~14ms parse, 0.017ms tap lookup << 50ms); removed redundant .gitkeep files; verified kDisclaimer in 3 required locations. |
+| 2026-09-29 | P8 | Human live-device verification & P8 close-out | Verified airplane mode graceful degradation, outside polygons tap ("Veri yok"), and accepted location permission review. |
 
 
 
@@ -527,6 +528,13 @@ import 'package:printing/printing.dart';
 - **Fault Lines:** 2 lines (8 vertices)
 - **Dataset Parse Time:** 13.986 ms
 - **Tap Lookup Latency:** Average 0.0170 ms (17 µs) across 1,000 iterations (max single tap: 0.050 ms), far exceeding the `< 50 ms` performance budget.
+
+### 4. Human Live-Device Verification (2026-09-29)
+Human live-device verification completed on a physical Android device:
+1. **Airplane mode:** Confirmed graceful degradation (OSM tiles blank/grey as expected, but geology polygons, fault line, marker, DEMO VERİ banner, and OSM attribution all rendered correctly, no crash).
+2. **Tap outside Bursa polygons:** Confirmed `"Veri yok – zemin etüdü gerekli"` message appears correctly in the assessment sheet.
+3. **Location permission denial:** NOT re-tested live (permission was already granted from an earlier install). Accepted as verified via code review (exact geolocator API signatures confirmed in P3a) and existing test coverage, per developer's explicit decision — not a gap requiring further action.
+
 
 
 

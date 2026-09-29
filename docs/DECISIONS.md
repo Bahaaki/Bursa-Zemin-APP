@@ -46,6 +46,7 @@
 | 2026-09-29 | P9 | Noto Sans OFL credit in README | Noto Sans Regular/Bold/Italic bundled under SIL Open Font License 1.1. Must be credited in README per license terms. Fonts sourced from Google Fonts. |
 | 2026-09-29 | P9 | OSM tile usage policy note in README | tile.openstreetmap.org used for development/portfolio. Production/scaled deployments must use a proper tile provider per OSM Tile Usage Policy. |
 | 2026-09-29 | P9 | LICENSE file: awaiting human choice | STOP-and-ask per task instructions: human must choose MIT, Apache 2.0, or other before file is created. Not created yet. |
+| 2026-09-29 | P9 | LICENSE: MIT chosen by human (Ahmed) | Human explicitly chose MIT License. LICENSE file created with copyright "2026 Ahmed". |
 | 2026-09-29 | P9 | docs/portfolio.md created | Turkish LinkedIn post (3-4 sentences, #Flutter #Jeoloji #Bursa) and 3-line Ulutek Teknopark pitch, based strictly on README content. |
 
 

@@ -209,4 +209,4 @@ flutter build apk --release
 
 ---
 
-*Developed by **Ahmed** · Data: MTA (synthetic/demo), AFAD (live), OpenStreetMap · Fonts: Noto Sans (SIL OFL)*
+*Developed by **Ahmed** · Data: MTA (synthetic/demo), AFAD (live), OpenStreetMap · Fonts: Noto Sans (SIL OFL) · License: MIT*

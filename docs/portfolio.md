@@ -4,7 +4,7 @@
 
 Flutter ile geliştirdiğim **Bursa Zemin** uygulaması artık hazır! 🗺️🏗️
 Haritada bir noktaya dokunarak MTA jeoloji verilerinden anlık zemin türü, aktif faya mesafe ve AFAD'dan canlı deprem bilgisi alabiliyorsunuz; üstelik Terzaghi formüllerine dayalı SPT taşıma gücü hesabı ve tek sayfalık PDF rapor oluşturma da uygulamada mevcut.
-Tamamen açık kaynak, sıfır API anahtarı ve %100 çevrimdışı hesaplama — jeoloji ve mühendislik verilerini Flutter'ın gücüyle bir araya getirmenin keyifli bir örneği oldu.
+Tamamen açık kaynak ve sıfır API anahtarı; SPT taşıma gücü hesaplama motoru tamamen çevrimdışı çalışıyor (harita döşemeleri ve canlı deprem verisi internet bağlantısı gerektiriyor) — jeoloji ve mühendislik verilerini Flutter'ın gücüyle bir araya getirmenin keyifli bir örneği oldu.
 Proje portfolyom için geliştirdiğim bu uygulama, gerçek veri entegrasyonuna hazır bir altyapı üzerine kurulu; görüşlerinizi bekliyorum!
 
 **Etiketler:** #Flutter #Jeoloji #Bursa #Android #AçıkKaynak

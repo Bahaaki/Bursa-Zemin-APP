@@ -41,6 +41,12 @@
 | 2026-09-27 | P7 | Live device report layout & map verification | Human visually verified live-device report layout and map rendering on 2026-09-27. |
 | 2026-09-29 | P8 | Hardening, error states & release build | Verified MAIN AndroidManifest permissions (INTERNET, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION); compiled release APK (24.6 MB, debug-signing fallback); added Turkish error screens for geology/faults parse failures; verified offline & location denial states; benchmarked demo dataset (5 features, 6 polygons, 30 vertices, ~14ms parse, 0.017ms tap lookup << 50ms); removed redundant .gitkeep files; verified kDisclaimer in 3 required locations. |
 | 2026-09-29 | P8 | Human live-device verification & P8 close-out | Verified airplane mode graceful degradation, outside polygons tap ("Veri yok"), and accepted location permission review. |
+| 2026-09-29 | P9 | CI extended: JDK 21, Flutter 3.24.0 pinned, release-apk job on v* tags | AGP 8.3/Gradle 8.5 requires JDK 21 (confirmed P0). Release job uses `softprops/action-gh-release@v2`. Debug signing fallback — no keystore provided, acceptable for portfolio APK. |
+| 2026-09-29 | P9 | README: English + Turkish section, all features mapped to files, MTA data explicitly SYNTHETIC/DEMO | Gate G1 data collection not completed; synthetic data status prominently disclosed (R1). |
+| 2026-09-29 | P9 | Noto Sans OFL credit in README | Noto Sans Regular/Bold/Italic bundled under SIL Open Font License 1.1. Must be credited in README per license terms. Fonts sourced from Google Fonts. |
+| 2026-09-29 | P9 | OSM tile usage policy note in README | tile.openstreetmap.org used for development/portfolio. Production/scaled deployments must use a proper tile provider per OSM Tile Usage Policy. |
+| 2026-09-29 | P9 | LICENSE file: awaiting human choice | STOP-and-ask per task instructions: human must choose MIT, Apache 2.0, or other before file is created. Not created yet. |
+| 2026-09-29 | P9 | docs/portfolio.md created | Turkish LinkedIn post (3-4 sentences, #Flutter #Jeoloji #Bursa) and 3-line Ulutek Teknopark pitch, based strictly on README content. |
 
 
 
